@@ -27,18 +27,12 @@ public class MainController : MonoBehaviour
             g.SetActive(true);
             m_facePoints.Add(g);
         }
-
-
-
     }
 
     GameObject m_aRFace;
 
-
     public GameObject m_currentGlasses;
     public GameObject m_glassesParent;
-
-
 
     bool m_isFindingFace = true;
     void Update()
@@ -90,6 +84,7 @@ public class MainController : MonoBehaviour
 
     public void setGlasses(GameObject glasses)
     {
+        Destroy(m_currentGlasses);
         glasses.SetActive(true);
         m_currentGlasses = glasses;
 
@@ -127,6 +122,7 @@ public class MainController : MonoBehaviour
         m_currentGlasses.SetActive(true);
         m_glassesParent.SetActive(true);
 
+
         Vector3 glassesPosition = getPositionOfGlassesObject(m_facePoints);
         float scaleVal = getScaleOfGlassesObject(m_facePoints, m_glassesParent);
 
@@ -137,7 +133,6 @@ public class MainController : MonoBehaviour
 
 
         m_glassesParent.transform.localScale = new Vector3(scaleVal, scaleVal, scaleVal);
-
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,8 +204,6 @@ public class MainController : MonoBehaviour
             templeRotPoint.transform.SetParent(m_currentGlasses.transform);
         }
 
-
-
     }
 
     public float getScaleOfGlassesObject(List<GameObject> points, GameObject originalObject)
@@ -255,5 +248,13 @@ public class MainController : MonoBehaviour
             }
         }
         return null;
+    }
+
+    /// ///////////////////////////////////////////////////////
+    /// ///////////////////////////////////////////////////////
+
+    void initializeBrandsCarousel()
+    {
+     
     }
 }

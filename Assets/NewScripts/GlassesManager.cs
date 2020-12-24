@@ -1,0 +1,130 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.IO;
+using System.Linq;
+
+public class GlassesManager : MonoBehaviour
+{
+    public List<GameObject> m_glasses = new List<GameObject>();
+
+    GameObject m_glassesContainer;
+    UIController m_uIController;
+    MainController m_mainController;
+
+    string m_currentModelsPath = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + "Adensco" + "/Models"; //TODO change Adensco
+
+    void Awake()
+    {
+        m_uIController = GameObject.Find("_manager").GetComponent<UIController>();
+        m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
+        m_glassesContainer = GameObject.Find("GlassesContainer");
+        initializeBrands();
+        loadGlasses("glasses_1");
+    }
+
+    public Texture2D m_debugTexture;
+    Texture2D getTexture2D(string path)
+    {
+        byte[] pngBytes = System.IO.File.ReadAllBytes(path);
+        Texture2D tex = new Texture2D(100, 100);
+        tex.LoadImage(pngBytes);
+        tex.Apply();
+        m_debugTexture = tex;
+        return tex;
+    }
+
+    string m_currentBrandName = "";
+    public void showModels(string brandName)
+    {
+
+        int c = GameObject.Find("CarouselModels").transform.GetChild(0).GetChild(0).childCount;
+        print("CCCCCCCCCCCC: " + c);
+        for (int i = 0; i < c; i++)
+        {
+            Destroy(GameObject.Find("CarouselModels").transform.GetChild(0).GetChild(0).GetChild(i).gameObject);
+        }
+
+        m_currentModelsPath = brandName;
+
+        DirectoryInfo d = new DirectoryInfo(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models");
+        m_currentModelsPath = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models";
+
+        FileInfo[] fis = d.GetFiles();
+
+
+        List<int> nameIndexList = new List<int>();
+        foreach (FileInfo fi in fis)
+        {
+            if (fi.Extension.Contains("png"))
+            {
+                string s = fi.ToString();
+                string fileName = s.Split('/').Last();
+
+                string nameIndexWithExtention = fileName.Split('_').Last();
+                string nameIndexNoExtention = Path.GetFileNameWithoutExtension(nameIndexWithExtention);
+
+                print("Garik nameIndex: " + nameIndexNoExtention);
+                nameIndexList.Add(int.Parse(nameIndexNoExtention));
+            }
+        }
+        int maxNameIndex = nameIndexList.Max();
+        int minNameIndex = nameIndexList.Min();
+        nameIndexList.Sort();
+
+        int modelCounter = 0;
+        foreach (FileInfo fi in fis)
+        {
+            if (fi.Extension.Contains("png"))
+            {
+                Texture2D tex = getTexture2D(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models/" + "glasses_" + nameIndexList[modelCounter] + ".png");
+                m_uIController.addModelToCarousel("glasses_" + nameIndexList[modelCounter], tex);
+                modelCounter++;
+
+            }
+        }
+
+     }
+
+
+    void initializeBrands()
+    {
+        string[] brandDirectories = Directory.GetDirectories(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands");
+        for (int i = 0; i < brandDirectories.Length; i++)
+        {
+            string folderName = brandDirectories[i].Split('/').Last();
+            print("Garik dir names: " + folderName);
+            Texture2D brandThumb = getTexture2D(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + folderName + "/BrandThumb.png");
+
+            m_uIController.addBrandToCarousel(folderName, brandThumb);
+        }
+    }
+
+
+
+    public void loadGlasses(string glassesName)
+    {
+        print("Garik combine string: " + Path.Combine(m_currentModelsPath, glassesName));
+        var myLoadedAssetBundle = AssetBundle.LoadFromFile(Path.Combine(m_currentModelsPath, glassesName));
+        if (myLoadedAssetBundle == null)
+        {
+            Debug.Log("Failed to load AssetBundle!");
+            return;
+        }
+
+        var prefab = myLoadedAssetBundle.LoadAsset<GameObject>(glassesName);
+        GameObject g = Instantiate(prefab);
+        g.name = glassesName;
+        g.SetActive(false);
+        g.transform.SetParent(m_glassesContainer.transform);
+        myLoadedAssetBundle.Unload(false);
+
+        m_mainController.setGlasses(g);
+
+    }
+
+    void Update()
+    {
+        print("Gameobject name: " + gameObject.name);
+    }
+}
