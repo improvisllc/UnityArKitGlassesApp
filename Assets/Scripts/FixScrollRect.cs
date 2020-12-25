@@ -24,7 +24,7 @@ public class FixScrollRect : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public void OnEndDrag(PointerEventData eventData)
     {
         MainScroll.OnEndDrag(eventData);
-        this.gameObject.transform.parent.parent.parent.gameObject.GetComponent<CarouselToggler>().OnEndDrag(eventData);
+        //this.gameObject.transform.parent.parent.parent.gameObject.GetComponent<CarouselToggler>().OnEndDrag(eventData);
     }
 
 

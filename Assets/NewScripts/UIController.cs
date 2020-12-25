@@ -12,10 +12,14 @@ public class UIController : MonoBehaviour
     MainController m_mainController = new MainController();
 
 
-    public GameObject m_carouselBrands;
-    public GameObject m_brandItem;
     public GameObject m_carouselModels;
     public GameObject m_modelItem;
+
+    public GameObject m_carouselBrandsNew;
+    CarouselController m_brandsCarouselController;
+    public GameObject m_carouselModelsNew;
+    public CarouselController m_modelsCarouselController;
+
 
     GameObject m_glassesModelTextGameobject;
     void Awake()
@@ -24,49 +28,28 @@ public class UIController : MonoBehaviour
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesModelTextGameobject = GameObject.Find("GlassesModelText");
 
-        //m_carouselBrands = GameObject.Find("CarouselBrands");
-        //m_brandItem = GameObject.Find("BrandItem");
-        //m_brandItem.SetActive(false);
-        //m_modelItem = GameObject.Find("ModelItem");
-        //m_modelItem.SetActive(false);
-
-        //initializeEventPanel();
-
+        m_brandsCarouselController = GameObject.Find("BrandsCarouselController").GetComponent<CarouselController>();
+        m_modelsCarouselController = GameObject.Find("ModelsCarouselController").GetComponent<CarouselController>();
     }
 
-    public void onBrandButtonClicked(PointerEventData data)
+    public void onBrandOrModelButtonClicked(PointerEventData data)
     {
-        string brandName = data.pointerClick.name;
-        m_glassesManager.showModels(brandName);
-        print("Garik: Brand Name: " + brandName);
+        string d = data.pointerClick.name;
+        if(d.Contains("glasses_"))
+        {
+            onModelButtonClicked(data);
+            return;
+        }
+
+        m_glassesManager.showModels(d);
+        print("Garik: Brand Name: " + d);
 
     }
+
 
     public void addBrandToCarousel(string name, Texture2D tex)
     {
-
-        GameObject brandItem = Instantiate(m_brandItem);
-        brandItem.SetActive(true);
-        brandItem.name = "BrandItem";
-
-        RectTransform rt = brandItem.transform.GetChild(0).GetComponent<RectTransform>();
-
-
-
-        rt.gameObject.AddComponent<EventTrigger>();
-        EventTrigger eventTrigger = rt.GetComponent<EventTrigger>();
-        EventTrigger.Entry clicked = new EventTrigger.Entry();
-        clicked.eventID = EventTriggerType.PointerClick;
-        clicked.callback.AddListener((data) => { onBrandButtonClicked((PointerEventData)data); });
-        eventTrigger.triggers.Add(clicked);
-
-
-        brandItem.transform.GetChild(0).name = name;
-        brandItem.transform.GetChild(0).GetComponent<RawImage>().texture = tex;
-        RectTransform brandCarouselContent = m_carouselBrands.transform.Find("ScrollRect").Find("Content").GetComponent<RectTransform>();
-        brandItem.transform.SetParent(brandCarouselContent);
-
-        rt.GetComponent<FixScrollRect>().MainScroll = rt.parent.parent.parent.GetComponent<ScrollRect>();
+        m_brandsCarouselController.AddCell(name, tex);
 
     }
 
@@ -75,7 +58,7 @@ public class UIController : MonoBehaviour
     {
 
         string modelName = data.pointerClick.name;
-        print("Garik: Brand Name: " + modelName);
+        print("Garik: MODEL Name: " + modelName);
 
         m_glassesManager.loadGlasses(modelName);
 
@@ -84,6 +67,8 @@ public class UIController : MonoBehaviour
     public void addModelToCarousel(string name, Texture2D tex)
     {
 
+        m_modelsCarouselController.AddCell(name, tex);
+        return;
         GameObject modelItem = Instantiate(m_modelItem);
         modelItem.SetActive(true);
         modelItem.name = "ModelItem";
@@ -111,6 +96,10 @@ public class UIController : MonoBehaviour
 
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.A))
+        {
+            //GameObject.Find("CarouselController").GetComponent<CarouselController>().AddCell(); 
+        }
 
     }
 
