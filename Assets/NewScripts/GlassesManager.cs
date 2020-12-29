@@ -20,7 +20,7 @@ public class GlassesManager : MonoBehaviour
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesContainer = GameObject.Find("GlassesContainer");
         initializeBrands();
-        loadGlasses("glasses_1");
+        StartCoroutine(loadGlasses("glasses_1"));
     }
 
     public Texture2D m_debugTexture;
@@ -117,17 +117,29 @@ public class GlassesManager : MonoBehaviour
 
 
 
-    public void loadGlasses(string glassesName)
+    public IEnumerator loadGlasses(string glassesName)
     {
+        if (m_mainController.m_currentGlasses != null)
+        {
+            Destroy(m_mainController.m_currentGlasses);
+        }
         print("Garik combine string: " + Path.Combine(m_currentModelsPath, glassesName));
-        var myLoadedAssetBundle = AssetBundle.LoadFromFile(Path.Combine(m_currentModelsPath, glassesName));
+        var bundleLoadRequest = AssetBundle.LoadFromFileAsync(Path.Combine(m_currentModelsPath, glassesName));
+
+        yield return bundleLoadRequest;
+
+        var myLoadedAssetBundle = bundleLoadRequest.assetBundle;
         if (myLoadedAssetBundle == null)
         {
             Debug.Log("Failed to load AssetBundle!");
-            return;
+            yield break;
         }
 
-        var prefab = myLoadedAssetBundle.LoadAsset<GameObject>(glassesName);
+        var assetLoadRequest = myLoadedAssetBundle.LoadAssetAsync<GameObject>(glassesName);
+        yield return assetLoadRequest;
+
+        GameObject prefab = assetLoadRequest.asset as GameObject;
+
         GameObject g = Instantiate(prefab);
         g.name = glassesName;
         g.SetActive(false);

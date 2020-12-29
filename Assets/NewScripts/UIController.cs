@@ -56,39 +56,14 @@ public class UIController : MonoBehaviour
 
     public void onModelButtonClicked(PointerEventData data)
     {
-
         string modelName = data.pointerClick.name;
         print("Garik: MODEL Name: " + modelName);
-
-        m_glassesManager.loadGlasses(modelName);
-
+        StartCoroutine(m_glassesManager.loadGlasses(modelName));
     }
 
     public void addModelToCarousel(string name, Texture2D tex)
     {
-
         m_modelsCarouselController.AddCell(name, tex);
-        return;
-        GameObject modelItem = Instantiate(m_modelItem);
-        modelItem.SetActive(true);
-        modelItem.name = "ModelItem";
-
-        RectTransform rt = modelItem.transform.GetChild(0).GetComponent<RectTransform>();
-
-        rt.gameObject.AddComponent<EventTrigger>();
-        EventTrigger eventTrigger = rt.GetComponent<EventTrigger>();
-        EventTrigger.Entry clicked = new EventTrigger.Entry();
-        clicked.eventID = EventTriggerType.PointerClick;
-        clicked.callback.AddListener((data) => { onModelButtonClicked((PointerEventData)data); });
-        eventTrigger.triggers.Add(clicked);
-
-
-        modelItem.transform.GetChild(0).name = name;
-        modelItem.transform.GetChild(0).GetComponent<RawImage>().texture = tex;
-        RectTransform modelCarouselContent = m_carouselModels.transform.Find("ScrollRect").Find("Content").GetComponent<RectTransform>();
-        modelItem.transform.SetParent(modelCarouselContent);
-
-        rt.GetComponent<FixScrollRect>().MainScroll = rt.parent.parent.parent.GetComponent<ScrollRect>();
     }
 
 

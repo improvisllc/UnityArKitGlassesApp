@@ -85,7 +85,7 @@ public class MainController : MonoBehaviour
     public void setGlasses(GameObject glasses)
     {
         Destroy(m_currentGlasses);
-        glasses.SetActive(true);
+        //glasses.SetActive(true);
         m_currentGlasses = glasses;
 
     }
@@ -115,6 +115,11 @@ public class MainController : MonoBehaviour
         m_glassesParent.transform.localScale = Vector3.one;
         //m_glassesParent.transform.GetChild(0).transform.localScale = Vector3.one;
         m_glassesParent.transform.eulerAngles = Vector3.zero;
+
+        if(m_currentGlasses == null)
+        {
+            return; 
+        }
 
         m_currentGlasses.transform.SetParent(m_glassesParent.transform);
         m_currentGlasses.transform.position = new Vector3(0, 0, 0);
