@@ -14,6 +14,7 @@ public class MainController : MonoBehaviour
     public List<GameObject> m_facePoints = new List<GameObject>();
 
 
+
     void Start()
     {
         m_facePoint.GetComponent<MeshRenderer>().enabled = false;
@@ -27,6 +28,8 @@ public class MainController : MonoBehaviour
             g.SetActive(true);
             m_facePoints.Add(g);
         }
+
+
     }
 
     GameObject m_aRFace;
@@ -35,19 +38,22 @@ public class MainController : MonoBehaviour
     public GameObject m_glassesParent;
 
     bool m_isFindingFace = true;
+
+
     void Update()
     {
         if (m_isFindingFace)
         {
             GameObject[] allSceneGameobjects = FindObjectsOfType<GameObject>();
-            //ARFace E0487BD4233EA461-7A78B950B77D248A
+
             for (int i = 0; i < allSceneGameobjects.Length; i++)
             {
                 if (allSceneGameobjects[i].name.Contains("ARFace "))
                 {
                     m_aRFace = allSceneGameobjects[i];
+
                     m_isFindingFace = false;
- 
+
                 }
                 //print("Garik Scene Gameobject: " + allSceneGameobjects[i].name);
             }
@@ -55,39 +61,36 @@ public class MainController : MonoBehaviour
 
         if (m_aRFace != null)
         {
-            //print("Garik Vertex Count: " + m_aRFace.GetComponent<MeshFilter>().mesh.vertexCount);
-            //print("Garik m_aRFace position: " + m_aRFace.transform.position);
-            /*print("Garik m_aRFace scale: " + m_aRFace.transform.lossyScale);
-            for (int i = 0; i < m_aRFace.GetComponent<MeshFilter>().mesh.vertexCount; i++)
+            Mesh mesh = m_aRFace.GetComponent<MeshFilter>().mesh;
+   
+            for (int i = 0; i < mesh.vertices.Length; i++)
             {
-                print("Garik vertex positions: " + m_aRFace.GetComponent<MeshFilter>().mesh.vertices[i].x + "  "
-                + m_aRFace.GetComponent<MeshFilter>().mesh.vertices[i].y + "  "
-                    + m_aRFace.GetComponent<MeshFilter>().mesh.vertices[i].z);
-            }*/
-
-            for (int i = 0; i < m_aRFace.GetComponent<MeshFilter>().mesh.vertices.Length; i++)
-            {
+                m_facePoints[i].transform.localPosition = mesh.vertices[i];
                 m_facePoints[i].transform.SetParent(m_aRFace.transform);
-                Vector3 worldPt = m_aRFace.GetComponent<MeshFilter>().mesh.vertices[i];
-                m_facePoints[i].transform.localPosition = new Vector3(worldPt.x, worldPt.y, worldPt.z);
-
-                m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);
+                //m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);  
+            }
+            if (mesh != null)
+            {
+                Destroy(mesh);
             }
 
-            //m_glasses.transform.position = m_aRFace.transform.position;
-            //m_debugSphere.transform.position = m_aRFace.transform.position;
 
             fitGlasses();
         }
-        //fitGlasses();
+
     }
 
     public void setGlasses(GameObject glasses)
     {
         Destroy(m_currentGlasses);
-        //glasses.SetActive(true);
         m_currentGlasses = glasses;
 
+
+        m_earpieceEndPointL = findByNameRecursively(glasses, Constants.s_earpieceStartPointLName);
+        m_earpieceEndPointR = findByNameRecursively(glasses, Constants.s_earpieceStartPointRName);
+
+        setAllChildMeshrenderersInactive(m_earpieceEndPointL);
+        setAllChildMeshrenderersInactive(m_earpieceEndPointR);
     }
 
     /// ///////////////////////////////////////////////////////
@@ -107,13 +110,8 @@ public class MainController : MonoBehaviour
         m_facePoints[1132].GetComponent<MeshRenderer>().material.color = Color.yellow; // Right Eye Right Corner
         m_facePoints[1134].GetComponent<MeshRenderer>().material.color = Color.yellow; // Left Eye Left Corner
 
-        //GameObject.DestroyImmediate(m_glasses, true);
-        //m_currentGlasses = Instantiate(m_glassesOriginal);
-
-        //m_currentGlasses.name = "CurrentGlasses";
         m_glassesParent.transform.position = Vector3.zero;
         m_glassesParent.transform.localScale = Vector3.one;
-        //m_glassesParent.transform.GetChild(0).transform.localScale = Vector3.one;
         m_glassesParent.transform.eulerAngles = Vector3.zero;
 
         if(m_currentGlasses == null)
@@ -127,7 +125,6 @@ public class MainController : MonoBehaviour
         m_currentGlasses.SetActive(true);
         m_glassesParent.SetActive(true);
 
-
         Vector3 glassesPosition = getPositionOfGlassesObject(m_facePoints);
         float scaleVal = getScaleOfGlassesObject(m_facePoints, m_glassesParent);
 
@@ -136,34 +133,37 @@ public class MainController : MonoBehaviour
 
         m_glassesParent.transform.eulerAngles = new Vector3(-m_glassesParent.transform.eulerAngles.x, m_glassesParent.transform.eulerAngles.y - 180, -m_glassesParent.transform.eulerAngles.z);
 
-
         m_glassesParent.transform.localScale = new Vector3(scaleVal, scaleVal, scaleVal);
 
-
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         
 
-        GameObject templeRotPointL = findByNameRecursively(m_glassesParent, Constants.s_templeRotPointLName);
-        GameObject templeRotPointR = findByNameRecursively(m_glassesParent, Constants.s_templeRotPointRName);
-
-
-        GameObject earpieceEndPointL = findByNameRecursively(m_glassesParent, Constants.s_earpieceStartPointLName);
-        GameObject earpieceEndPointR = findByNameRecursively(m_glassesParent, Constants.s_earpieceStartPointRName);
+        m_templeRotPointL = findByNameRecursively(m_glassesParent, Constants.s_templeRotPointLName);
+        m_templeRotPointR = findByNameRecursively(m_glassesParent, Constants.s_templeRotPointRName);
 
 
-        GameObject clmEarPointLeft = m_facePoints[888];
-        GameObject clmEarPointRight = m_facePoints[467];
+        m_earpieceEndPointL = findByNameRecursively(m_glassesParent, Constants.s_earpieceStartPointLName);
+        m_earpieceEndPointR = findByNameRecursively(m_glassesParent, Constants.s_earpieceStartPointRName);
 
-        deformGlassesToFitToPlane(templeRotPointL, earpieceEndPointL, clmEarPointRight.transform.position);
-        deformGlassesToFitToPlane(templeRotPointR, earpieceEndPointR, clmEarPointLeft.transform.position);
-        //print("Garik After deform");
-        setAllChildMeshrenderersInactive(earpieceEndPointL);
-        setAllChildMeshrenderersInactive(earpieceEndPointR);
-        //earpieceEndPointL.GetComponent<MeshRenderer>().enabled = false;
-        //earpieceEndPointR.GetComponent<MeshRenderer>().enabled = false;
+
+        m_clmEarPointLeft = m_facePoints[888];
+        m_clmEarPointRight = m_facePoints[467];
+
+        deformGlassesToFitToPlane(m_templeRotPointL, m_earpieceEndPointL, m_clmEarPointRight.transform.position);
+        deformGlassesToFitToPlane(m_templeRotPointR, m_earpieceEndPointR, m_clmEarPointLeft.transform.position);
+
+        //setAllChildMeshrenderersInactive(m_earpieceEndPointL);
+        //setAllChildMeshrenderersInactive(m_earpieceEndPointR);
+
 
     }
+    GameObject m_templeRotPointL;
+    GameObject m_templeRotPointR;
+    GameObject m_earpieceEndPointL;
+    GameObject m_earpieceEndPointR;
+    GameObject m_clmEarPointLeft;
+    GameObject m_clmEarPointRight;
+
 
     void deformGlassesToFitToPlane(GameObject templeRotPoint, GameObject earpieceEndPoint, Vector3 clmEarPoint)
     {
@@ -242,16 +242,19 @@ public class MainController : MonoBehaviour
         }
         return;
     }
+    Transform[] m_componentsInChildren;
+
     GameObject findByNameRecursively(GameObject ob, string name)
     {
-        Transform[] a = ob.GetComponentsInChildren<Transform>();
-        foreach (Transform t in a)
+        m_componentsInChildren = ob.GetComponentsInChildren<Transform>();
+        foreach (Transform t in m_componentsInChildren)
         {
             if (t.gameObject != null && t.gameObject.name == name)
             {
                 return t.gameObject;
             }
         }
+
         return null;
     }
 

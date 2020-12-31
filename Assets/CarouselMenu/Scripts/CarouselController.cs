@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
 [System.Serializable]
 public class CarouselEvent : UnityEvent<int, int> { }
@@ -103,9 +104,9 @@ public class CarouselController : MonoBehaviour
         rt.GetComponent<FixScrollRect>().MainScroll = rt.parent.parent.parent.GetComponent<ScrollRect>();
 
 
-        // Last cell, we just add
-        // Otherwise, we insert
-        if (m_centerCellIndex >= m_cellContainer.Count - 1)
+    // Last cell, we just add
+    // Otherwise, we insert
+    if (m_centerCellIndex >= m_cellContainer.Count - 1)
     {
       m_cellContainer.Add(go);
     }
@@ -249,6 +250,7 @@ public class CarouselController : MonoBehaviour
 
   void SetupCells(bool instantUpdate)
   {
+
     for (int i = 0; i < m_cellContainer.Count; i++)
     {
       RectTransform rt = m_cellContainer[i].GetComponent<RectTransform>();
@@ -312,6 +314,7 @@ public class CarouselController : MonoBehaviour
       }
 
       // Only allow one direction at a time
+
       if (!_isHorizontal)
       {
 
@@ -329,20 +332,28 @@ public class CarouselController : MonoBehaviour
       if (instantUpdate || m_isCircularMovment)
       {
         rt.position = m_final;
+        //rt.DOMove(m_final, 0.5f);
         rt.localScale = m_newScale;
         rt.localRotation = Quaternion.Euler(m_newRot);
         _panel.ForceUpdateRectTransforms();
       }
       else
       {
-        rt.position = Vector3.Lerp(rt.position, m_final, Time.deltaTime * _moveSpeed);
+
+                    rt.position = Vector3.Lerp(rt.position, m_final, Time.deltaTime * _moveSpeed);
+
+
+        
+        //rt.DOMove(m_final, 0.5f);
+
         rt.localScale = Vector3.Lerp(rt.localScale, m_newScale, Time.deltaTime * _scaleSpeed);
         rt.localRotation = Quaternion.Lerp(rt.localRotation, Quaternion.Euler(m_newRot), Time.deltaTime * _rotateSpeed);
       }
     }
   }
 
-  void CheckAutoFocus()
+
+    void CheckAutoFocus()
   {
     if (!_shouldFocusCenter)
       return;

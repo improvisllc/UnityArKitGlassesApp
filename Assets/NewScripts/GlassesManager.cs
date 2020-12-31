@@ -37,25 +37,11 @@ public class GlassesManager : MonoBehaviour
     public GameObject m_carouselModelsNewTemplate;
     public void showModels(string brandName)
     {
-
-
         Destroy(m_uIController.m_carouselModelsNew);
         GameObject newCarouselModelsNew = Instantiate(m_carouselModelsNewTemplate, GameObject.Find("Canvas").transform);
         newCarouselModelsNew.name = "CarouselModelsNEW";
         m_uIController.m_carouselModelsNew = newCarouselModelsNew;
         m_uIController.m_modelsCarouselController = newCarouselModelsNew.transform.Find("ModelsCarouselController").GetComponent<CarouselController>();
-
-
-
-        /*int c = GameObject.Find("ModelsCarouselController").GetComponent<CarouselController>().m_cellContainer.Count; //GameObject.Find("CarouselModelsNEW").transform.GetChild(0).GetChild(0).childCount;
-        for (int i = 0; i < c; i++)
-        {
-            //Destroy(GameObject.Find("CarouselModelsNEW").transform.GetChild(0).GetChild(0).GetChild(i).gameObject);
-            //GameObject.Find("ModelsCarouselController").GetComponent<CarouselController>().RemoveCell(i);
-            //GameObject.Find("ModelsCarouselController").GetComponent<CarouselController>().RemoveCenterCell();
-            //GameObject.Find("ModelsCarouselController").GetComponent<CarouselController>().m_cellContainer.RemoveAt(i);
-        }*/
-
 
         m_currentModelsPath = brandName;
 
