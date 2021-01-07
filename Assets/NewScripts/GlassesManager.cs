@@ -37,11 +37,25 @@ public class GlassesManager : MonoBehaviour
     public GameObject m_carouselModelsNewTemplate;
     public void showModels(string brandName)
     {
+        /*
         Destroy(m_uIController.m_carouselModelsNew);
         GameObject newCarouselModelsNew = Instantiate(m_carouselModelsNewTemplate, GameObject.Find("Canvas").transform);
         newCarouselModelsNew.name = "CarouselModelsNEW";
         m_uIController.m_carouselModelsNew = newCarouselModelsNew;
         m_uIController.m_modelsCarouselController = newCarouselModelsNew.transform.Find("ModelsCarouselController").GetComponent<CarouselController>();
+        */
+        if (GameObject.Find("CarouselModelsNEW") != null)
+        {
+            int c = GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").childCount;
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Clear();
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Capacity = 0;
+            for (int i = 0; i < c; i++)
+            {
+                Destroy(GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").GetChild(i).gameObject);
+
+            }
+        }
+
 
         m_currentModelsPath = brandName;
 
@@ -62,7 +76,7 @@ public class GlassesManager : MonoBehaviour
                 string nameIndexWithExtention = fileName.Split('_').Last();
                 string nameIndexNoExtention = Path.GetFileNameWithoutExtension(nameIndexWithExtention);
 
-                print("Garik nameIndex: " + nameIndexNoExtention);
+                //print("Garik nameIndex: " + nameIndexNoExtention);
                 nameIndexList.Add(int.Parse(nameIndexNoExtention));
             }
         }
@@ -82,6 +96,7 @@ public class GlassesManager : MonoBehaviour
             }
         }
         m_uIController.m_carouselModelsNew.SetActive(true);
+        Invoke("focusModelsInvokeMethod", 0.1f);
 
     }
 
@@ -92,13 +107,25 @@ public class GlassesManager : MonoBehaviour
         for (int i = 0; i < brandDirectories.Length; i++)
         {
             string folderName = brandDirectories[i].Split('/').Last();
-            print("Garik dir names: " + folderName);
+            //print("Garik dir names: " + folderName);
             Texture2D brandThumb = getTexture2D(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + folderName + "/BrandThumb.png");
 
             m_uIController.addBrandToCarousel(folderName, brandThumb);
         }
+        Invoke("focusBrandsInvokeMethod", 0.1f);
 
 
+
+
+    }
+
+    void focusBrandsInvokeMethod()
+    {
+        GameObject.Find("CarouselBrandsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnItem(2, 0);
+    }
+    void focusModelsInvokeMethod()
+    {
+        GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnItem(2, 0);
     }
 
 
@@ -109,7 +136,7 @@ public class GlassesManager : MonoBehaviour
         {
             Destroy(m_mainController.m_currentGlasses);
         }
-        print("Garik combine string: " + Path.Combine(m_currentModelsPath, glassesName));
+        //print("Garik combine string: " + Path.Combine(m_currentModelsPath, glassesName));
         var bundleLoadRequest = AssetBundle.LoadFromFileAsync(Path.Combine(m_currentModelsPath, glassesName));
 
         yield return bundleLoadRequest;

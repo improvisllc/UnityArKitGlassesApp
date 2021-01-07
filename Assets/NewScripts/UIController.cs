@@ -13,13 +13,11 @@ public class UIController : MonoBehaviour
     MainController m_mainController = new MainController();
 
 
-
-    public GameObject m_modelItem;
-
     public GameObject m_carouselBrandsNew;
-    CarouselController m_brandsCarouselController;
+    //GCarouselController m_brandsCarouselController;
+
     public GameObject m_carouselModelsNew;
-    public CarouselController m_modelsCarouselController;
+    //GCarouselController m_modelsCarouselController;
 
 
     GameObject m_glassesModelTextGameobject;
@@ -29,8 +27,10 @@ public class UIController : MonoBehaviour
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesModelTextGameobject = GameObject.Find("GlassesModelText");
 
-        m_brandsCarouselController = GameObject.Find("BrandsCarouselController").GetComponent<CarouselController>();
-        m_modelsCarouselController = GameObject.Find("ModelsCarouselController").GetComponent<CarouselController>();
+        //m_brandsCarouselController = m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
+
+        //m_modelsCarouselController = m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
+
     }
 
     public void onBrandOrModelButtonClicked(PointerEventData data)
@@ -50,8 +50,7 @@ public class UIController : MonoBehaviour
 
     public void addBrandToCarousel(string name, Texture2D tex)
     {
-        m_brandsCarouselController.AddCell(name, tex);
-
+        m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().SetupCell(name, tex);
     }
 
 
@@ -64,7 +63,7 @@ public class UIController : MonoBehaviour
 
     public void addModelToCarousel(string name, Texture2D tex)
     {
-        m_modelsCarouselController.AddCell(name, tex);
+        m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().SetupCell(name, tex);
     }
 
 
@@ -120,18 +119,4 @@ public class UIController : MonoBehaviour
         yield return null;
     }
 
-    void HandleMediaSaveCallback2(bool success, string path)
-    {
-    }
-
-
-    void HandleMediaSaveCallback1(bool success, string path)
-    {
-    }
-
-
-    void HandleMediaSaveCallback(bool success, string path)
-    {
-
-    }
 }
