@@ -131,6 +131,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MainScene.unity
     guid: 2f07c426f44ff4fcfb29075166a5c2a4
+  - enabled: 0
+    path: Assets/UnityReplayKitBridge/Example/Assets/Main/Main.unity
+    guid: c3a576ab5801948b0b5dd570754fb1ce
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: f8ce26fe3bc69499b9be4b2378e97a94,
       type: 2}

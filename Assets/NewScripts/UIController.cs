@@ -38,12 +38,13 @@ public class UIController : MonoBehaviour
         string d = data.pointerClick.name;
         if(d.Contains("glasses_"))
         {
+            print("Garik: Model Name: " + d);
             onModelButtonClicked(data);
             return;
         }
-
-        m_glassesManager.showModels(d);
         print("Garik: Brand Name: " + d);
+        m_glassesManager.showModels(d);
+
 
     }
 
@@ -66,7 +67,65 @@ public class UIController : MonoBehaviour
         m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().SetupCell(name, tex);
     }
 
+    public void startRecord()
+    {
+        //ReplayKitBridge.StartRecording();
+        if (!ReplayKitBridge.IsScreenRecorderAvailable || ReplayKitBridge.IsRecording)
+        {
+            return;
+        }
 
+        // Set up delegates
+        ReplayKitBridge.Instance.onStartRecordingCallback = OnStartRecording;
+        ReplayKitBridge.Instance.onCancelRecordingCallback = OnCancelRecording;
+        ReplayKitBridge.Instance.onStopRecordingCallback = OnStopRecording;
+        ReplayKitBridge.Instance.onStopRecordingWithErrorCallback = OnStopRecordingWithError;
+        ReplayKitBridge.Instance.onFinishPreviewCallback = OnFinishPreview;
+
+        // Enable camera and microphone
+        ReplayKitBridge.IsCameraEnabled = true;
+        ReplayKitBridge.IsMicrophoneEnabled = true;
+
+        // And then start recording
+        ReplayKitBridge.StartRecording();
+
+    }
+
+    public void OnStartRecording()
+    {
+        Debug.Log("OnStartRecording");
+    }
+
+    public void OnCancelRecording()
+    {
+        Debug.Log("OnCancelRecording");
+    }
+
+    public void OnStopRecording()
+    {
+        Debug.Log("OnStopRecording");
+
+        Time.timeScale = 0;
+        ReplayKitBridge.PresentPreviewView();
+    }
+
+    public void OnStopRecordingWithError(string error)
+    {
+        Debug.Log("OnStopRecordingWithError error=" + error);
+    }
+
+    public void OnFinishPreview(string activityType)
+    {
+        Debug.Log("OnFinishPreview activityType=" + activityType);
+
+        ReplayKitBridge.DismissPreviewView();
+        Time.timeScale = 1;
+    }
+
+    public void stopRecord()
+    {
+        ReplayKitBridge.StopRecording();
+    }
 
 
     void Update()

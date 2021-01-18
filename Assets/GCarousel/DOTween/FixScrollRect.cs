@@ -49,7 +49,8 @@ public class FixScrollRect : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnScroll(PointerEventData data)
     {
-        //MainScroll.OnScroll(data);
+
+        this.gameObject.transform.parent.parent.parent.Find("_carouselManager").GetComponent<GCarouselController>().onScroll(data);
     }
 
 

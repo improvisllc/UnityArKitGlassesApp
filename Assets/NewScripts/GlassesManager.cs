@@ -37,13 +37,8 @@ public class GlassesManager : MonoBehaviour
     public GameObject m_carouselModelsNewTemplate;
     public void showModels(string brandName)
     {
-        /*
-        Destroy(m_uIController.m_carouselModelsNew);
-        GameObject newCarouselModelsNew = Instantiate(m_carouselModelsNewTemplate, GameObject.Find("Canvas").transform);
-        newCarouselModelsNew.name = "CarouselModelsNEW";
-        m_uIController.m_carouselModelsNew = newCarouselModelsNew;
-        m_uIController.m_modelsCarouselController = newCarouselModelsNew.transform.Find("ModelsCarouselController").GetComponent<CarouselController>();
-        */
+        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().setCellArrangementMethod(GCarouselController.CellArrangementMethod.eFromCenterToRight);
+
         if (GameObject.Find("CarouselModelsNEW") != null)
         {
             int c = GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").childCount;
@@ -96,13 +91,18 @@ public class GlassesManager : MonoBehaviour
             }
         }
         m_uIController.m_carouselModelsNew.SetActive(true);
-        Invoke("focusModelsInvokeMethod", 0.1f);
+        //Invoke("focusModelsInvokeMethod", 0.1f);
+        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition = Vector3.zero;
+        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnCellIndex(2);
 
     }
 
 
     void initializeBrands()
     {
+        m_uIController.m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().setCellArrangementMethod(GCarouselController.CellArrangementMethod.eFromCenterToRight);
+        m_uIController.m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnCellIndex(2);
+        //m_uIController.m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().m_swapEnabled = true;
         string[] brandDirectories = Directory.GetDirectories(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands");
         for (int i = 0; i < brandDirectories.Length; i++)
         {
@@ -112,21 +112,21 @@ public class GlassesManager : MonoBehaviour
 
             m_uIController.addBrandToCarousel(folderName, brandThumb);
         }
-        Invoke("focusBrandsInvokeMethod", 0.1f);
+        //Invoke("focusBrandsInvokeMethod", 0.1f);
 
 
 
 
     }
 
-    void focusBrandsInvokeMethod()
+    /*void focusBrandsInvokeMethod()
     {
         GameObject.Find("CarouselBrandsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnItem(2, 0);
     }
     void focusModelsInvokeMethod()
     {
         GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnItem(2, 0);
-    }
+    }*/
 
 
 

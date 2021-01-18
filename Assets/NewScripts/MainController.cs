@@ -99,7 +99,7 @@ public class MainController : MonoBehaviour
     {
 
         //print("Garik fit glasses calling");
-
+        /*
         m_facePoints[467].GetComponent<MeshRenderer>().material.color = Color.red; // Left Ear Point
         m_facePoints[888].GetComponent<MeshRenderer>().material.color = Color.red; // Right Ear Point
 
@@ -109,7 +109,7 @@ public class MainController : MonoBehaviour
 
         m_facePoints[1132].GetComponent<MeshRenderer>().material.color = Color.yellow; // Right Eye Right Corner
         m_facePoints[1134].GetComponent<MeshRenderer>().material.color = Color.yellow; // Left Eye Left Corner
-
+        */
         m_glassesParent.transform.position = Vector3.zero;
         m_glassesParent.transform.localScale = Vector3.one;
         m_glassesParent.transform.eulerAngles = Vector3.zero;
