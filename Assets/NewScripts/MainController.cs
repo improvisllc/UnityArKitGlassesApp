@@ -17,6 +17,8 @@ public class MainController : MonoBehaviour
 
     void Start()
     {
+        StatusBarManager.BarAnim(2);
+        StatusBarManager.Show(true);
         m_facePoint.GetComponent<MeshRenderer>().enabled = false;
         m_facePoint.transform.GetChild(0).gameObject.SetActive(false);
         m_facePoint.SetActive(false);
@@ -42,6 +44,7 @@ public class MainController : MonoBehaviour
 
     void Update()
     {
+        //return;
         if (m_isFindingFace)
         {
             GameObject[] allSceneGameobjects = FindObjectsOfType<GameObject>();

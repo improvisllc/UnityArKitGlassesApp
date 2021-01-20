@@ -80,9 +80,13 @@ public class GCarouselController : MonoBehaviour
         }
     }
 
+    GameObject m_selectedBrandBorder;
+    GameObject m_selectedModelMarker;
+
     void Awake()
     {
-
+        m_selectedBrandBorder = GameObject.Find("SelectedBrandBorder");
+        m_selectedModelMarker = GameObject.Find("SelectedModelMarker");
     }
     void Start()
     {
@@ -113,45 +117,57 @@ public class GCarouselController : MonoBehaviour
 
     public void onCellClicked(PointerEventData data)
     {
-
-        if (this.gameObject.transform.parent.name.Contains("Models"))
-        {
-            GameObject.Find("_manager").GetComponent<UIController>().onBrandOrModelButtonClicked(data);
-            return;
-        }
-
         string clickedCellNam = data.pointerClick.name;
 
         GameObject cell = GameObject.Find(clickedCellNam).gameObject;
 
-        float distance = Vector3.Distance(cell.transform.position, m_carouselCenterPoint.transform.position);
-
-        GameObject selectedBrandBorder = GameObject.Find("SelectedBrandBorder");
+        m_selectedModelMarker.transform.SetParent(null);
 
 
-        //selectedBrandBorder.transform.position = cell.transform.position;
-        float globalCenterX = m_carouselCenterPoint.transform.position.x;
-
-        if (this.gameObject.transform.parent.name.Contains("Brands"))
+        if (this.gameObject.transform.parent.name.Contains("Models"))
         {
-            if(data.pointerClick.transform.position.x > m_carouselCenterPoint.transform.position.x + m_cell.sizeDelta.x / 2)
-            {
-                selectedBrandBorder.transform.position = m_carouselCenterPoint.transform.position;
-            }
-            if (data.pointerClick.transform.position.x < m_carouselCenterPoint.transform.position.x - m_cell.sizeDelta.x / 2)
-            {
-                selectedBrandBorder.transform.position = m_carouselCenterPoint.transform.position;
-            }
+            GameObject.Find("_manager").GetComponent<UIController>().onBrandOrModelButtonClicked(data);
 
-            if (data.pointerClick.transform.position.x > m_carouselCenterPoint.transform.position.x - m_cell.sizeDelta.x/2 && data.pointerClick.transform.position.x < m_carouselCenterPoint.transform.position.x + m_cell.sizeDelta.x / 2)
-            {
-                selectedBrandBorder.transform.position = data.pointerClick.transform.position;
-            }
 
+            m_selectedModelMarker.transform.SetParent(cell.transform);
+
+            m_selectedModelMarker.transform.localPosition = new Vector3(0, -99.0f, 0);
+            return;
         }
 
 
 
+
+        float distance = Vector3.Distance(cell.transform.position, m_carouselCenterPoint.transform.position);
+
+
+        float globalCenterX = m_carouselCenterPoint.transform.position.x;
+
+
+
+        if (this.gameObject.transform.parent.name.Contains("Brands"))
+        {
+            m_selectedBrandBorder.transform.position = data.pointerClick.transform.position;
+            m_selectedBrandBorder.transform.SetParent(cell.transform);
+            /*
+            if(data.pointerClick.transform.position.x > m_carouselCenterPoint.transform.position.x + m_cell.sizeDelta.x / 2)
+            {
+                m_selectedBrandBorder.transform.position = m_carouselCenterPoint.transform.position;
+            }
+            if (data.pointerClick.transform.position.x < m_carouselCenterPoint.transform.position.x - m_cell.sizeDelta.x / 2)
+            {
+                m_selectedBrandBorder.transform.position = m_carouselCenterPoint.transform.position;
+            }
+
+            if (data.pointerClick.transform.position.x > m_carouselCenterPoint.transform.position.x - m_cell.sizeDelta.x/2 && data.pointerClick.transform.position.x < m_carouselCenterPoint.transform.position.x + m_cell.sizeDelta.x / 2)
+            {
+                m_selectedBrandBorder.transform.position = data.pointerClick.transform.position;
+            }*/
+
+        }
+
+
+        /*
         if (cell.transform.position.x < m_carouselCenterPoint.transform.position.x)
         {
             if (m_cellList[2].position.x > globalCenterX - m_distanceBetweenCells && m_cellList[2].transform.position.x < globalCenterX + m_distanceBetweenCells)
@@ -159,7 +175,8 @@ public class GCarouselController : MonoBehaviour
                 Debug.Log("End from left");
                 if (this.gameObject.transform.parent.name.Contains("Brands"))
                 {
-                    selectedBrandBorder.transform.position = cell.transform.position;
+                    m_selectedBrandBorder.transform.position = cell.transform.position;
+                    GameObject.Find("_manager").GetComponent<UIController>().onBrandOrModelButtonClicked(data);
                 }
                 return;
 
@@ -174,13 +191,13 @@ public class GCarouselController : MonoBehaviour
                 Debug.Log("End from right");
                 if (this.gameObject.transform.parent.name.Contains("Brands"))
                 {
-                    selectedBrandBorder.transform.position = cell.transform.position;
+                    m_selectedBrandBorder.transform.position = cell.transform.position;
                 }
                 return;
             }
             float destPos = cell.transform.parent.transform.position.x - distance;
             cell.transform.parent.transform.DOMoveX(destPos, 0.2f);
-        }
+        }*/
 
         GameObject.Find("_manager").GetComponent<UIController>().onBrandOrModelButtonClicked(data);
     }
@@ -208,52 +225,13 @@ public class GCarouselController : MonoBehaviour
         //Debug.Log("onScroll Calling");
     }
 
-    public void onDrag()
+    public void onDrag(PointerEventData data)
     {
-
         if (this.gameObject.transform.parent.name.Contains("Models"))
         {
             Debug.Log("onDrag Calling");
 
         }
-
-        return;
-        if (m_swapEnabled)
-        {
-            float rightPnt = m_carouselCenterPoint.transform.position.x + m_carouselPanel.GetComponent<RectTransform>().sizeDelta.x / 2;
-            float leftPnt = m_carouselCenterPoint.transform.position.x - m_carouselPanel.GetComponent<RectTransform>().sizeDelta.x / 2;
-
-            if (m_cellList[m_cellList.Count - 1].GetComponent<RectTransform>().position.x >= rightPnt)
-            {
-                float newPosX = m_cellList[0].transform.localPosition.x - (m_cell.sizeDelta.x + m_distanceBetweenCells);
-                m_cellList[m_cellList.Count - 1].transform.localPosition = new Vector3(newPosX, 0, 0);
-                m_cellList[m_cellList.Count - 1].SetSiblingIndex(0);
-
-                updateCellList();
-
-            }
-
-            if (m_cellList[0].GetComponent<RectTransform>().position.x <= leftPnt)
-            {
-                float newPosX = m_cellList[m_cellList.Count - 1].transform.localPosition.x + (m_cell.sizeDelta.x + m_distanceBetweenCells);
-                m_cellList[0].transform.localPosition = new Vector3(newPosX, 0, 0);
-                m_cellList[0].SetSiblingIndex(m_cellList.Count - 1);
-
-                updateCellList();
-
-            }
-        }
-        return;
-        //Debug.Log("onDrag Call: " + m_cellList[4].transform.position);
-        if (m_cellList[4].transform.position.x >= m_carouselPanel.GetComponent<RectTransform>().sizeDelta.x)
-        {
-            Debug.Log("Change Place");
-        }
-        for (int i = 0; i < m_cellList.Count; i++)
-        {
-            //if(m_cellList[i].)
-        }
-
     }
 
     public void onEndDrag(PointerEventData data)
@@ -263,6 +241,19 @@ public class GCarouselController : MonoBehaviour
         {
             return;
         }
+
+        //if(m_cellList[m_cellList.Count-1])
+        float rightPnt = m_carouselCenterPoint.transform.position.x + m_carouselPanel.GetComponent<RectTransform>().sizeDelta.x / 2;
+        float leftPnt = m_carouselCenterPoint.transform.position.x - m_carouselPanel.GetComponent<RectTransform>().sizeDelta.x / 2;
+        if (m_cellList[m_cellList.Count-1].GetComponent<RectTransform>().position.x <= rightPnt - m_cell.sizeDelta.x / 2 + m_distanceBetweenCells / 2)
+        {
+            return;
+        }
+        if (m_cellList[0].GetComponent<RectTransform>().position.x >= leftPnt + m_cell.sizeDelta.x / 2 + m_distanceBetweenCells / 2)
+        {
+            return;
+        }
+
         float minDistance = float.MaxValue;
         RectTransform closestItem = new RectTransform();
         for (int i = 0; i < m_cellList.Count; i++)
@@ -273,6 +264,7 @@ public class GCarouselController : MonoBehaviour
                 closestItem = m_cellList[i];
             }
         }
+
         //print("on end drag " + minDistance + " closestItem: " + closestItem.name);
         if (closestItem.transform.position.x < m_carouselCenterPoint.transform.position.x)
         {
