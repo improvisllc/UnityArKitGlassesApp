@@ -41,6 +41,7 @@ public class MainController : MonoBehaviour
 
     bool m_isFindingFace = true;
 
+    Mesh m_mesh;
 
     void Update()
     {
@@ -51,10 +52,11 @@ public class MainController : MonoBehaviour
 
             for (int i = 0; i < allSceneGameobjects.Length; i++)
             {
-                if (allSceneGameobjects[i].name.Contains("ARFace "))
+                if (allSceneGameobjects[i].name.Contains("ARFace"))
                 {
                     m_aRFace = allSceneGameobjects[i];
-
+                    m_mesh = m_aRFace.GetComponent<MeshFilter>().mesh;
+ 
                     m_isFindingFace = false;
 
                 }
@@ -62,20 +64,30 @@ public class MainController : MonoBehaviour
             }
         }
 
-        if (m_aRFace != null)
+
+        if (!m_isFindingFace)
         {
-            Mesh mesh = m_aRFace.GetComponent<MeshFilter>().mesh;
-   
-            for (int i = 0; i < mesh.vertices.Length; i++)
+
+            if(m_mesh.vertexCount == 0)
             {
-                m_facePoints[i].transform.localPosition = mesh.vertices[i];
+                Debug.Log("Garik Face Mesh Vertex Count Is Zero");
+                m_mesh = m_aRFace.GetComponent<MeshFilter>().mesh;
+                /*for (int i = 0; i < m_mesh.vertices.Length; i++)
+                {
+                    m_facePoints[i].transform.localPosition = m_mesh.vertices[i];
+                    m_facePoints[i].transform.SetParent(m_aRFace.transform);
+                    //m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);  
+                }*/
+            }
+
+
+            for(int i = 0; i < m_mesh.vertices.Length; i++)
+            {
+                m_facePoints[i].transform.localPosition = m_mesh.vertices[i];
                 m_facePoints[i].transform.SetParent(m_aRFace.transform);
                 //m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);  
             }
-            if (mesh != null)
-            {
-                Destroy(mesh);
-            }
+
 
 
             fitGlasses();
@@ -154,10 +166,6 @@ public class MainController : MonoBehaviour
 
         deformGlassesToFitToPlane(m_templeRotPointL, m_earpieceEndPointL, m_clmEarPointRight.transform.position);
         deformGlassesToFitToPlane(m_templeRotPointR, m_earpieceEndPointR, m_clmEarPointLeft.transform.position);
-
-        //setAllChildMeshrenderersInactive(m_earpieceEndPointL);
-        //setAllChildMeshrenderersInactive(m_earpieceEndPointR);
-
 
     }
     GameObject m_templeRotPointL;
