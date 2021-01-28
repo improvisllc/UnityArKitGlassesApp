@@ -80,8 +80,8 @@ public class GCarouselController : MonoBehaviour
         }
     }
 
-    GameObject m_selectedBrandBorder;
-    GameObject m_selectedModelMarker;
+    public GameObject m_selectedBrandBorder;
+    public GameObject m_selectedModelMarker;
 
     void Awake()
     {
@@ -93,6 +93,14 @@ public class GCarouselController : MonoBehaviour
         if (this.gameObject.transform.parent.name.Contains("Models"))
         {
             this.gameObject.transform.parent.GetComponent<ScrollRect>().inertia = true;
+
+
+
+        }
+        else
+        {
+            m_selectedBrandBorder.transform.SetParent(m_cellList[2]);
+            m_selectedBrandBorder.transform.localPosition = Vector3.zero;
         }
     }
 
@@ -132,6 +140,9 @@ public class GCarouselController : MonoBehaviour
             m_selectedModelMarker.transform.SetParent(cell.transform);
 
             m_selectedModelMarker.transform.localPosition = new Vector3(0, -99.0f, 0);
+
+            //Vector3 lp = m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition;
+            //m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition = new Vector3(lp.x + 294 + m_distanceBetweenCells, lp.y, lp.z);
             return;
         }
 
@@ -200,6 +211,7 @@ public class GCarouselController : MonoBehaviour
         }*/
 
         GameObject.Find("_manager").GetComponent<UIController>().onBrandOrModelButtonClicked(data);
+
     }
 
     void focusOnItem(int itemIndex, float duration)
@@ -294,10 +306,20 @@ public class GCarouselController : MonoBehaviour
             rt.GetChild(i).GetComponent<RawImage>().texture = rt.GetChild(i).GetComponent<RawImage>().texture;
         }
 
+
     }
 
     void Update()
     {
+        if(Input.GetKey(KeyCode.M))
+        {
+            if (this.gameObject.transform.parent.name.Contains("Models"))
+            {
+                Vector3 lp = m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition;
+                m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition = new Vector3(lp.x + 294 + m_distanceBetweenCells, lp.y, lp.z);
+                return;
+            }
+        }
         return;
         if(this.gameObject.transform.parent.name.Contains("Models"))
         {

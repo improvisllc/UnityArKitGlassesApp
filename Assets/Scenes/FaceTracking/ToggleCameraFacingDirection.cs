@@ -25,6 +25,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void Update()
         {
+            return; // BY GARIK
             if (m_CameraManager == null || m_Session == null)
                 return;
 
@@ -38,6 +39,18 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 {
                     m_CameraManager.requestedFacingDirection = CameraFacingDirection.User;
                 }
+            }
+        }
+
+        public void onCameraChangeBtnClicked()
+        {
+            if (m_CameraManager.requestedFacingDirection == CameraFacingDirection.User)
+            {
+                m_CameraManager.requestedFacingDirection = CameraFacingDirection.World;
+            }
+            else
+            {
+                m_CameraManager.requestedFacingDirection = CameraFacingDirection.User;
             }
         }
     }

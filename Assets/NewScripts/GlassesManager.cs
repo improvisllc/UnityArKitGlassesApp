@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.IO;
 using System.Linq;
 
@@ -12,7 +13,7 @@ public class GlassesManager : MonoBehaviour
     UIController m_uIController;
     MainController m_mainController;
 
-    string m_currentModelsPath = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + "Adensco" + "/Models"; //TODO change Adensco
+    string m_currentModelsPath = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + "Aristar" + "/Models"; //TODO change Adensco
 
     void Awake()
     {
@@ -20,7 +21,7 @@ public class GlassesManager : MonoBehaviour
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesContainer = GameObject.Find("GlassesContainer");
         initializeBrands();
-        StartCoroutine(loadGlasses("glasses_1"));
+        StartCoroutine(loadGlasses("glasses_15"));
     }
 
     public Texture2D m_debugTexture;
@@ -38,7 +39,7 @@ public class GlassesManager : MonoBehaviour
     public void showModels(string brandName)
     {
         m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().setCellArrangementMethod(GCarouselController.CellArrangementMethod.eFromCenterToRight);
-
+        //m_uIController.m_carouselModelsNew.transform.Find("Viewport").Find("Content").GetComponent<HorizontalLayoutGroup>().enabled = false;
         if (GameObject.Find("CarouselModelsNEW") != null)
         {
             int c = GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").childCount;
@@ -91,9 +92,10 @@ public class GlassesManager : MonoBehaviour
             }
         }
         m_uIController.m_carouselModelsNew.SetActive(true);
+
         //Invoke("focusModelsInvokeMethod", 0.1f);
-        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition = Vector3.zero;
-        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnCellIndex(2);
+        //m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition = Vector3.zero;
+        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnCellIndex(1);
 
     }
 
@@ -160,6 +162,11 @@ public class GlassesManager : MonoBehaviour
         myLoadedAssetBundle.Unload(false);
 
         m_mainController.setGlasses(g);
+
+        //GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_selectedModelMarker.transform.SetParent(GameObject.Find(glassesName).transform);
+        //GameObject.Find("SelectedModelMarker");//.transform.SetParent(GameObject.Find(glassesName).transform);
+
+
 
     }
 

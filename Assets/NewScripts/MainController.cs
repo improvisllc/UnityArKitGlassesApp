@@ -18,7 +18,10 @@ public class MainController : MonoBehaviour
     void Start()
     {
         StatusBarManager.BarAnim(2);
+        StatusBarManager.BarStyle(1);
         StatusBarManager.Show(true);
+
+
         m_facePoint.GetComponent<MeshRenderer>().enabled = false;
         m_facePoint.transform.GetChild(0).gameObject.SetActive(false);
         m_facePoint.SetActive(false);
@@ -45,6 +48,8 @@ public class MainController : MonoBehaviour
 
     void Update()
     {
+        //GameObject.Find("SelectedModelMarker").transform.SetParent(GameObject.Find("glasses_15").transform);
+        //print ("Garik NUMBER::: "  + NativeInfoProvider.sampleFunc(174848));
         //return;
         if (m_isFindingFace)
         {
@@ -72,23 +77,32 @@ public class MainController : MonoBehaviour
             {
                 Debug.Log("Garik Face Mesh Vertex Count Is Zero");
                 m_mesh = m_aRFace.GetComponent<MeshFilter>().mesh;
-                /*for (int i = 0; i < m_mesh.vertices.Length; i++)
-                {
-                    m_facePoints[i].transform.localPosition = m_mesh.vertices[i];
-                    m_facePoints[i].transform.SetParent(m_aRFace.transform);
-                    //m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);  
-                }*/
             }
 
-
-            for(int i = 0; i < m_mesh.vertices.Length; i++)
+            /*for(int i = 0; i < m_mesh.vertices.Length; i++)
             {
                 m_facePoints[i].transform.localPosition = m_mesh.vertices[i];
                 m_facePoints[i].transform.SetParent(m_aRFace.transform);
                 //m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);  
-            }
+            }*/
 
+            m_facePoints[888].transform.localPosition = m_mesh.vertices[888];
+            m_facePoints[888].transform.SetParent(m_aRFace.transform);
 
+            m_facePoints[467].transform.localPosition = m_mesh.vertices[467];
+            m_facePoints[467].transform.SetParent(m_aRFace.transform);
+
+            m_facePoints[16].transform.localPosition = m_mesh.vertices[16];
+            m_facePoints[16].transform.SetParent(m_aRFace.transform);
+
+            m_facePoints[36].transform.localPosition = m_mesh.vertices[36];
+            m_facePoints[36].transform.SetParent(m_aRFace.transform);
+
+            m_facePoints[1132].transform.localPosition = m_mesh.vertices[1132];
+            m_facePoints[1132].transform.SetParent(m_aRFace.transform);
+
+            m_facePoints[1134].transform.localPosition = m_mesh.vertices[1134];
+            m_facePoints[1134].transform.SetParent(m_aRFace.transform);
 
             fitGlasses();
         }
@@ -106,6 +120,8 @@ public class MainController : MonoBehaviour
 
         setAllChildMeshrenderersInactive(m_earpieceEndPointL);
         setAllChildMeshrenderersInactive(m_earpieceEndPointR);
+
+
     }
 
     /// ///////////////////////////////////////////////////////

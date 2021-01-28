@@ -19,6 +19,8 @@ public class UIController : MonoBehaviour
     public GameObject m_carouselModelsNew;
     //GCarouselController m_modelsCarouselController;
 
+    public RectTransform m_centerCircleButton;
+
 
     GameObject m_glassesModelTextGameobject;
     void Awake()
@@ -30,6 +32,21 @@ public class UIController : MonoBehaviour
         //m_brandsCarouselController = m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
 
         //m_modelsCarouselController = m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
+
+
+    }
+
+    void Start()
+    {
+        firstCallForBrandsAndModels();
+        m_textureData = null;
+
+        addListeners();
+    }
+
+    public void firstCallForBrandsAndModels()
+    {
+        m_glassesManager.showModels("Aristar");
 
     }
 
@@ -43,6 +60,7 @@ public class UIController : MonoBehaviour
             return;
         }
         print("Garik: Brand Name: " + d);
+
         m_glassesManager.showModels(d);
 
 
@@ -67,71 +85,99 @@ public class UIController : MonoBehaviour
         m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().SetupCell(name, tex);
     }
 
+    public RawImage m_debugRawImage;
+    public byte[] m_textureData;
     public void startRecord()
     {
-        //ReplayKitBridge.StartRecording();
-        if (!ReplayKitBridge.IsScreenRecorderAvailable || ReplayKitBridge.IsRecording)
-        {
-            return;
-        }
+        var texture = new Texture2D(480, 640, TextureFormat.ARGB32, false);
 
-        // Set up delegates
-        ReplayKitBridge.Instance.onStartRecordingCallback = OnStartRecording;
-        ReplayKitBridge.Instance.onCancelRecordingCallback = OnCancelRecording;
-        ReplayKitBridge.Instance.onStopRecordingCallback = OnStopRecording;
-        ReplayKitBridge.Instance.onStopRecordingWithErrorCallback = OnStopRecordingWithError;
-        ReplayKitBridge.Instance.onFinishPreviewCallback = OnFinishPreview;
+        // set the pixel values
+        texture.SetPixel(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.5f));
+        texture.SetPixel(1, 0, Color.clear);
+        texture.SetPixel(0, 1, Color.white);
+        texture.SetPixel(1, 1, Color.black);
 
-        // Enable camera and microphone
-        ReplayKitBridge.IsCameraEnabled = true;
-        ReplayKitBridge.IsMicrophoneEnabled = true;
+        // Apply all SetPixel calls
+        texture.Apply();
 
-        // And then start recording
-        ReplayKitBridge.StartRecording();
+        //NativeInfoProvider.init(480, 640);
+        print("Garik Meri After Init");
 
-    }
 
-    public void OnStartRecording()
-    {
-        Debug.Log("OnStartRecording");
-    }
-
-    public void OnCancelRecording()
-    {
-        Debug.Log("OnCancelRecording");
-    }
-
-    public void OnStopRecording()
-    {
-        Debug.Log("OnStopRecording");
-
-        Time.timeScale = 0;
-        ReplayKitBridge.PresentPreviewView();
-    }
-
-    public void OnStopRecordingWithError(string error)
-    {
-        Debug.Log("OnStopRecordingWithError error=" + error);
-    }
-
-    public void OnFinishPreview(string activityType)
-    {
-        Debug.Log("OnFinishPreview activityType=" + activityType);
-
-        ReplayKitBridge.DismissPreviewView();
-        Time.timeScale = 1;
+        m_textureData = texture.EncodeToPNG();//.GetRawTextureData();
+        print("Garik Meri After GetRawTextureData");
     }
 
     public void stopRecord()
     {
-        ReplayKitBridge.StopRecording();
+        //NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 0);
+        m_textureData = null;
+        print("Garik Meri Stop");
     }
 
 
+    void addListeners()
+    {
+        EventTrigger triggerDown = m_centerCircleButton.gameObject.AddComponent<EventTrigger>();
+        var pointerDown = new EventTrigger.Entry();
+        pointerDown.eventID = EventTriggerType.PointerDown;
+        pointerDown.callback.AddListener((e) => onCenterCircleDownPtrDown());
+        triggerDown.triggers.Add(pointerDown);
+
+        EventTrigger triggerUp = m_centerCircleButton.gameObject.AddComponent<EventTrigger>();
+        var pointerUp = new EventTrigger.Entry();
+        pointerUp.eventID = EventTriggerType.PointerUp;
+        pointerUp.callback.AddListener((e) => onCenterCircleDownPtrUp());
+        triggerUp.triggers.Add(pointerUp);
+    }
+
+    float m_recordButtonPointerDownStartTime = 0;
+    float m_recordButtonPointerDownElapsedTime = 0;
+    bool m_startTimerForRecordButton = false;
+
+    void onCenterCircleDownPtrDown()
+    {
+        m_recordButtonPointerDownStartTime = Time.time;
+        m_startTimerForRecordButton = true;
+    }
+    void onCenterCircleDownPtrUp()
+    {
+        if(m_startTimerForRecordButton)
+        {
+            print("Garik Stop Recording");
+            m_startTimerForRecordButton = false;
+            GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StopRecording();
+        }
+    }
+
+    bool m_recCanStart = false;
     void Update()
     {
+        if(m_startTimerForRecordButton)
+        {
+            m_recordButtonPointerDownElapsedTime = Time.time - m_recordButtonPointerDownStartTime;
 
+            if (m_recordButtonPointerDownElapsedTime > 1)
+            {
+                m_recCanStart = true;
+            }
+        }
 
+        if(m_recCanStart)
+        {
+            print("Garik Start Recording");
+            GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StartRecording();
+            m_recCanStart = false;
+        }
+        /*
+        if (m_textureData != null && m_textureData.Length > 0)
+        {
+            print("Garik Call _appendFrameFromImage");
+            print("Garik m_textureData: " + m_textureData);
+            print("Garik m_textureData Length: " + m_textureData.Length);
+
+           // NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 1);
+        }*/
     }
 
     public void onCaptureButtonClicked()
@@ -165,8 +211,10 @@ public class UIController : MonoBehaviour
         string date = System.DateTime.Now.ToString("ddMMyyHHmmss");
         screenshotFilename = fileName + "_" + date + ".jpg";
 
-
+        //screenImage.GetRawTextureData
         StartCoroutine(saveCaptureScreenshot(screenImage, "Glassee", screenshotFilename));
+
+        
 
     }
 
@@ -177,5 +225,7 @@ public class UIController : MonoBehaviour
 
         yield return null;
     }
+
+
 
 }
