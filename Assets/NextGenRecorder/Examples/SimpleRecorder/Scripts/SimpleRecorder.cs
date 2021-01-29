@@ -88,8 +88,6 @@ namespace pmjo.Examples
         public void StopRecording()
         {
             Recorder.StopRecording();
-
-
         }
 
         public  void ExportLastRecording()
@@ -100,18 +98,28 @@ namespace pmjo.Examples
             }
         }
 
+        string m_currentVideoPath = "";
+        public void saveVideoToGallery()
+        {
+            Sharing.SaveToPhotos(m_currentVideoPath, "Glassee");
+        }
+        public void shareRecordedVideo()
+        {
+            Sharing.ShowShareSheet(m_currentVideoPath, true);
+        }
         void RecordingExported(long sessionId, string path, Recorder.ErrorCode errorCode)
         {
             if (errorCode == Recorder.ErrorCode.NoError)
             {
+                m_currentVideoPath = path;
                 Debug.Log("Recording exported to " + path + ", session id " + sessionId);
 
-    #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
                 CopyFileToDesktop(path, "MyAwesomeRecording.mp4");
 #elif UNITY_IOS || UNITY_TVOS
                 PlayVideo(path);
                 //Sharing.SaveToPhotos(path, "Glassee");
-                Sharing.ShowShareSheet(path, true);
+                //Sharing.ShowShareSheet(path, true);
 #endif
 
                 // Or save to photos using the Sharing API (triggers save to file dialog on macOS)
@@ -167,6 +175,7 @@ namespace pmjo.Examples
             File.Copy(path, dstPath, true);
 
             Debug.Log("Recording " + fileName + " copied to the desktop");
+
         }
 
 #elif UNITY_IOS || UNITY_TVOS
@@ -177,8 +186,9 @@ namespace pmjo.Examples
                 path = "file://" + path;
             }
             print("Garik Path For Meriiiiii 111: " + path);
-
-            Handheld.PlayFullScreenMovie(path);
+            GameObject.Find("_manager").GetComponent<UIController>().showVideoOutputRawimage();
+            GameObject.Find("_manager").GetComponent<VideoPlayerController>().setVideoPlayerUrl(path);
+            //Handheld.PlayFullScreenMovie(path);
         }
 
 #endif

@@ -7,6 +7,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+using pmjo.NextGenRecorder;
+using pmjo.NextGenRecorder.Sharing;
+
 public class UIController : MonoBehaviour
 {
     GlassesManager m_glassesManager = new GlassesManager();
@@ -14,13 +17,44 @@ public class UIController : MonoBehaviour
 
 
     public GameObject m_carouselBrandsNew;
-    //GCarouselController m_brandsCarouselController;
 
     public GameObject m_carouselModelsNew;
-    //GCarouselController m_modelsCarouselController;
 
     public RectTransform m_centerCircleButton;
 
+    public RectTransform m_videoOutputRawimage;
+
+    public void showVideoOutputRawimage()
+    {
+        m_videoOutputRawimage.gameObject.SetActive(true);
+    }
+    public void hideVideoOutputRawimage()
+    {
+        m_videoOutputRawimage.gameObject.SetActive(false);
+    }
+
+    public void onCloseVideoBtnClicked()
+    {
+        hideVideoOutputRawimage();
+    }
+    public void onSaveVideoBtnClicked()
+    {
+        this.gameObject.GetComponent<pmjo.Examples.SimpleRecorder>().saveVideoToGallery();
+    }
+    public void onShareVideoBtnClicked()
+    {
+        this.gameObject.GetComponent<pmjo.Examples.SimpleRecorder>().shareRecordedVideo();
+    }
+    public RectTransform m_videoOutputBottomPanel;
+
+    public void hideVideoOutputBottomPanel()
+    {
+        m_videoOutputBottomPanel.gameObject.SetActive(false);
+    }
+    public void showVideoOutputBottomPanel()
+    {
+        m_videoOutputBottomPanel.gameObject.SetActive(true);
+    }
 
     GameObject m_glassesModelTextGameobject;
     void Awake()
@@ -28,12 +62,8 @@ public class UIController : MonoBehaviour
         m_glassesManager = GameObject.Find("_manager").GetComponent<GlassesManager>();
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesModelTextGameobject = GameObject.Find("GlassesModelText");
-
         //m_brandsCarouselController = m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
-
         //m_modelsCarouselController = m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
-
-
     }
 
     void Start()
@@ -47,7 +77,6 @@ public class UIController : MonoBehaviour
     public void firstCallForBrandsAndModels()
     {
         m_glassesManager.showModels("Aristar");
-
     }
 
     public void onBrandOrModelButtonClicked(PointerEventData data)
@@ -62,8 +91,6 @@ public class UIController : MonoBehaviour
         print("Garik: Brand Name: " + d);
 
         m_glassesManager.showModels(d);
-
-
     }
 
 
@@ -89,8 +116,8 @@ public class UIController : MonoBehaviour
     public byte[] m_textureData;
     public void startRecord()
     {
+        /*
         var texture = new Texture2D(480, 640, TextureFormat.ARGB32, false);
-
         // set the pixel values
         texture.SetPixel(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.5f));
         texture.SetPixel(1, 0, Color.clear);
@@ -100,19 +127,18 @@ public class UIController : MonoBehaviour
         // Apply all SetPixel calls
         texture.Apply();
 
-        //NativeInfoProvider.init(480, 640);
+        NativeInfoProvider.init(480, 640);
         print("Garik Meri After Init");
-
-
         m_textureData = texture.EncodeToPNG();//.GetRawTextureData();
-        print("Garik Meri After GetRawTextureData");
+        print("Garik Meri After GetRawTextureData");*/
     }
 
     public void stopRecord()
     {
-        //NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 0);
+        /*
+        NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 0);
         m_textureData = null;
-        print("Garik Meri Stop");
+        print("Garik Meri Stop");*/
     }
 
 
@@ -176,7 +202,7 @@ public class UIController : MonoBehaviour
             print("Garik m_textureData: " + m_textureData);
             print("Garik m_textureData Length: " + m_textureData.Length);
 
-           // NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 1);
+            NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 1);
         }*/
     }
 
@@ -196,13 +222,11 @@ public class UIController : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
 
-
         Texture2D screenImage = new Texture2D(Screen.width, Screen.height);
-        //Get Image from screen
+
         screenImage.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         screenImage.Apply();
 
-        //GameObject.Find("DebugRawImage").GetComponent<RawImage>().texture = screenImage;
         yield return new WaitForEndOfFrame();
         GameObject.Find("Canvas").GetComponent<Canvas>().enabled = true;
 
@@ -211,7 +235,6 @@ public class UIController : MonoBehaviour
         string date = System.DateTime.Now.ToString("ddMMyyHHmmss");
         screenshotFilename = fileName + "_" + date + ".jpg";
 
-        //screenImage.GetRawTextureData
         StartCoroutine(saveCaptureScreenshot(screenImage, "Glassee", screenshotFilename));
 
         
