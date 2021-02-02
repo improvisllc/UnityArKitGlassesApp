@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using pmjo.NextGenRecorder;
 using pmjo.NextGenRecorder.Sharing;
-
+using System.Runtime.InteropServices;
 
 namespace pmjo.Examples
 {
@@ -79,15 +79,34 @@ namespace pmjo.Examples
             UpdateSaveOrViewRecordingButton();
             ExportLastRecording();
         }
-
+        bool m_isAudioRecStarted = false;
         public void StartRecording()
         {
             Recorder.StartRecording();
+            if (!m_isAudioRecStarted)
+            {
+                NativeInfoProvider.startRecording();
+                m_isAudioRecStarted = true;
+            }
         }
 
         public void StopRecording()
         {
             Recorder.StopRecording();
+
+            if (m_isAudioRecStarted)
+            {
+                NativeInfoProvider.stopRecording();
+                m_isAudioRecStarted = false;
+            }
+
+            /*char[] audioPath = NativeInfoProvider.getAudioPath();
+            string audioPathString = audioPath.ToString();
+            print("Garik audioPathString : " + audioPathString);
+            GameObject.Find("_manager").GetComponent<AudioPlayerController>().setAudioClip(audioPathString);
+            print("Garik audioPathString 22: " + audioPathString);*/
+
+            //GameObject.Find("_manager").GetComponent<AudioPlayerController>().playCurrentAudioClip();
         }
 
         public  void ExportLastRecording()
@@ -101,7 +120,16 @@ namespace pmjo.Examples
         string m_currentVideoPath = "";
         public void saveVideoToGallery()
         {
-            Sharing.SaveToPhotos(m_currentVideoPath, "Glassee");
+            print("Garegin B");
+            char[] p = m_currentVideoPath.ToCharArray();
+            NativeInfoProvider.mergeVideoWithAudio(p);
+            print("Garegin GGGGGGGGGGGGGGGGGGG");
+
+
+
+            //Sharing.SaveToPhotos(m_currentVideoPath, "Glassee");
+            print("Garegin merged path: " + m_currentVideoPath);
+            //Marshal.PtrToStringAnsi(mergedPath);
         }
         public void shareRecordedVideo()
         {
@@ -176,6 +204,12 @@ namespace pmjo.Examples
 
             Debug.Log("Recording " + fileName + " copied to the desktop");
 
+
+            NativeInfoProvider.playAudio();
+            print("Garik after play audio");
+            GameObject.Find("_manager").GetComponent<UIController>().showVideoOutputRawimage();
+            GameObject.Find("_manager").GetComponent<VideoPlayerController>().setVideoPlayerUrl(path);
+
         }
 
 #elif UNITY_IOS || UNITY_TVOS
@@ -186,6 +220,8 @@ namespace pmjo.Examples
                 path = "file://" + path;
             }
             print("Garik Path For Meriiiiii 111: " + path);
+            NativeInfoProvider.playAudio();
+            print("Garik after play audio");
             GameObject.Find("_manager").GetComponent<UIController>().showVideoOutputRawimage();
             GameObject.Find("_manager").GetComponent<VideoPlayerController>().setVideoPlayerUrl(path);
             //Handheld.PlayFullScreenMovie(path);

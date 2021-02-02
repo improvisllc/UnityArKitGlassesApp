@@ -30,7 +30,49 @@ public class NativeInfoProvider
     unsafe public static extern void _appendFrameFromImage(byte[] a_ImageBuffer, int a_BufferLength, int a_FrameTimeInMilliseconds, int a_startOrStop);
 
 
+#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern void startRecording();
 
+#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern void stopRecording();
+
+#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern void mergeVideoWithAudio(char[] path);
+
+#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern void playAudio();
+
+
+#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern char[] getAudioPath();
+
+
+/*#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern void saveVideo(char[] path);*/
 
 
 }

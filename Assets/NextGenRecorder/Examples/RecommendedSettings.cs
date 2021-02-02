@@ -35,10 +35,11 @@ public class RecommendedSettings : MonoBehaviour
         {
             Recorder.VideoScale = 1.0f;
         }
+        Recorder.RecordAudio = true;
 
         // Enable to use a custom bitrate for audio and video
-        // Recorder.CustomVideoBitrate = CustomVideoBitrate;
-        // Recorder.CustomAudioBitrate = CustomAudioBitrate;
+         Recorder.CustomVideoBitrate = CustomVideoBitrate;
+         Recorder.CustomAudioBitrate = CustomAudioBitrate;
     }
 
     private int CustomVideoBitrate(long sessionId, int width, int height, int frameRate)
@@ -53,5 +54,10 @@ public class RecommendedSettings : MonoBehaviour
     private int CustomAudioBitrate(long sessionId, int sampleRate, int channelCount)
     {
         return 32000 * channelCount;
+    }
+
+    private void Update()
+    {
+        //print("Garik audio: " + Recorder.RecordAudio);
     }
 }

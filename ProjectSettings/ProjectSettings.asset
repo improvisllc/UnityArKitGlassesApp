@@ -73,7 +73,7 @@ PlayerSettings:
   runInBackground: 1
   captureSingleScreen: 0
   muteOtherAudioSources: 0
-  Prepare IOS For Recording: 0
+  Prepare IOS For Recording: 1
   Force IOS Speakers When Recording: 0
   deferSystemGesturesMode: 0
   hideHomeButton: 1
@@ -140,8 +140,8 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 4800000, guid: e7c77f6eaab324a819efdc13b8125a39, type: 3}
   - {fileID: 0}
+  - {fileID: 4800000, guid: e7c77f6eaab324a819efdc13b8125a39, type: 3}
   - {fileID: -7479341934665344595, guid: e2f869774b12e400996eb546603602e3, type: 2}
   - {fileID: 0}
   metroInputSource: 0
@@ -443,7 +443,7 @@ PlayerSettings:
   enableCrashReportAPI: 0
   cameraUsageDescription: Camera required for AR
   locationUsageDescription: Required for Geo Anchors
-  microphoneUsageDescription: 
+  microphoneUsageDescription: Microphone Usage Required
   switchNMETAOverride: 
   switchNetLibKey: 
   switchSocketMemoryPoolSize: 6144
