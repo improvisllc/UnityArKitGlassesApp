@@ -44,7 +44,6 @@ namespace pmjo.Examples
         void Awake()
         {
             mLastSessionId = Recorder.GetLastRecordingSession();
-
             UpdateStartAndStopRecordingButton();
             UpdateSaveOrViewRecordingButton();
         }

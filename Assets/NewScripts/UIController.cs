@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 using pmjo.NextGenRecorder;
 using pmjo.NextGenRecorder.Sharing;
+using UnityEngine.Video;
 
 public class UIController : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class UIController : MonoBehaviour
     public void onCloseVideoBtnClicked()
     {
         hideVideoOutputRawimage();
+        GameObject.Find("VideoPlayer").GetComponent<VideoPlayer>().Stop();
     }
     public void onSaveVideoBtnClicked()
     {
@@ -160,6 +162,7 @@ public class UIController : MonoBehaviour
     float m_recordButtonPointerDownStartTime = 0;
     float m_recordButtonPointerDownElapsedTime = 0;
     bool m_startTimerForRecordButton = false;
+    bool m_canTakeSnapshot = true;
 
     void onCenterCircleDownPtrDown()
     {
@@ -195,6 +198,7 @@ public class UIController : MonoBehaviour
 
             if (m_recordButtonPointerDownElapsedTime > 1)
             {
+                m_canTakeSnapshot = false;
                 m_recCanStart = true;
             }
         }
@@ -218,6 +222,11 @@ public class UIController : MonoBehaviour
 
     public void onCaptureButtonClicked()
     {
+        if(!m_canTakeSnapshot)
+        {
+            m_canTakeSnapshot = true;
+            return;
+        }
         StartCoroutine(captureScreenshot());
         print("onCaptureButtonClicked");
     }
