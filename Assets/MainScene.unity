@@ -1882,7 +1882,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 145e031e795514024910bdd5166b026a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_videoPlayer: {fileID: 2063012917}
+  m_videoPlayerComponent: {fileID: 2063012917}
+  m_renderTexture: {fileID: 8400000, guid: 7f271d60b55584432a046e2fd46d5564, type: 2}
+  m_videoPlayerObject: {fileID: 2063012916}
+  m_audioSource: {fileID: 817368638}
 --- !u!114 &1082188075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4132,7 +4135,7 @@ GameObject:
   - component: {fileID: 2063012918}
   - component: {fileID: 2063012917}
   m_Layer: 0
-  m_Name: Video Player
+  m_Name: VideoPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4146,7 +4149,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2063012916}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: e48ed1e326a0d4c1a916cbf670fd99fc, type: 3}
+  m_VideoClip: {fileID: 0}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -4156,14 +4159,14 @@ VideoPlayer:
   m_TargetMaterialProperty: _MainTex
   m_RenderMode: 2
   m_AspectRatio: 2
-  m_DataSource: 0
+  m_DataSource: 1
   m_PlaybackSpeed: 1
-  m_AudioOutputMode: 2
+  m_AudioOutputMode: 1
   m_TargetAudioSources:
-  - {fileID: 0}
+  - {fileID: 817368638}
   m_DirectAudioVolumes:
   - 1
-  m_Url: 
+  m_Url: file:///Users/garik/Desktop/UnityArKitGlassesApp/UnityArKitGlassesApp/Assets/GVideoPlayer/PZXE4219.mp4
   m_EnabledAudioTracks: 01
   m_DirectAudioMutes: 00
   m_ControlledAudioTrackCount: 1

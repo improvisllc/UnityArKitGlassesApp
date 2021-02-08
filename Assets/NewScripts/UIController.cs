@@ -173,8 +173,18 @@ public class UIController : MonoBehaviour
             print("Garik Stop Recording");
             m_startTimerForRecordButton = false;
             GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StopRecording();
+            //StartCoroutine(stopRecordingCoroutine());
         }
     }
+
+   /* IEnumerator stopRecordingCoroutine()
+    {
+        print("Garik stopRecordingCoroutine");
+        yield return new WaitForSeconds(3);
+        GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StopRecording();
+        print("Garik after stopRecordingCoroutine");
+
+    }*/
 
     bool m_recCanStart = false;
     void Update()

@@ -8,6 +8,7 @@ using UnityEngine.EventSystems;
 using pmjo.NextGenRecorder;
 using pmjo.NextGenRecorder.Sharing;
 using System.Runtime.InteropServices;
+using UnityEngine.Video;
 
 namespace pmjo.Examples
 {
@@ -17,6 +18,8 @@ namespace pmjo.Examples
         public Button stopRecordingButton;
         public Button saveRecordingButton;
         public Button viewRecordingButton;
+
+        //public AudioPlayerController m_audioPlayerController;
 
         private long mLastSessionId;
 
@@ -48,6 +51,8 @@ namespace pmjo.Examples
 
         void Start()
         {
+            //string videoClipName = GameObject.Find("VideoPlayer").GetComponent<VideoPlayer>().clip.name;
+            //print("Garik Video Clip Name: " + videoClipName);
             CreateEventSystemIfItDoesNotExist();
         }
 
@@ -85,7 +90,8 @@ namespace pmjo.Examples
             Recorder.StartRecording();
             if (!m_isAudioRecStarted)
             {
-                NativeInfoProvider.startRecording();
+                //GameObject.Find("_manager").GetComponent<AudioPlayerController>().startMicrophoneRecording();
+                NativeInfoProvider.startAudioRecording();
                 m_isAudioRecStarted = true;
             }
         }
@@ -96,17 +102,9 @@ namespace pmjo.Examples
 
             if (m_isAudioRecStarted)
             {
-                NativeInfoProvider.stopRecording();
+                NativeInfoProvider.stopAudioRecording();
                 m_isAudioRecStarted = false;
             }
-
-            /*char[] audioPath = NativeInfoProvider.getAudioPath();
-            string audioPathString = audioPath.ToString();
-            print("Garik audioPathString : " + audioPathString);
-            GameObject.Find("_manager").GetComponent<AudioPlayerController>().setAudioClip(audioPathString);
-            print("Garik audioPathString 22: " + audioPathString);*/
-
-            //GameObject.Find("_manager").GetComponent<AudioPlayerController>().playCurrentAudioClip();
         }
 
         public  void ExportLastRecording()
@@ -120,16 +118,24 @@ namespace pmjo.Examples
         string m_currentVideoPath = "";
         public void saveVideoToGallery()
         {
-            print("Garegin B");
             char[] p = m_currentVideoPath.ToCharArray();
             NativeInfoProvider.mergeVideoWithAudio(p);
-            print("Garegin GGGGGGGGGGGGGGGGGGG");
+            while (true)
+            {
+                int merged = NativeInfoProvider.isMergedVideoWithAudio();
+                if (merged == 1)
+                {
+                    Debug.Log("Garik already merged: " + "Save Video");
+                    NativeInfoProvider.saveVideo(p);
+                    break;
+                }
+                else if (merged == 0)
+                {
+                    Debug.Log("Garik While Loop: " + merged);
+                }
 
-
-
+            }
             //Sharing.SaveToPhotos(m_currentVideoPath, "Glassee");
-            print("Garegin merged path: " + m_currentVideoPath);
-            //Marshal.PtrToStringAnsi(mergedPath);
         }
         public void shareRecordedVideo()
         {
@@ -141,21 +147,28 @@ namespace pmjo.Examples
             {
                 m_currentVideoPath = path;
                 Debug.Log("Recording exported to " + path + ", session id " + sessionId);
+                char[] p = m_currentVideoPath.ToCharArray();
+                NativeInfoProvider.mergeVideoWithAudio(p);
+                while (true)
+                {
+                    int merged = NativeInfoProvider.isMergedVideoWithAudio();
+                    if (merged == 1)
+                    {
+                        Debug.Log("Garik already merged: " + "Play Video");
+                        NativeInfoProvider.changeSpeakerConfigurationToDefault();
+                        PlayVideo(path);
+                        break;
+                    }
+                    else if(merged == 0)
+                    {
+                        Debug.Log("Garik While Loop: " + merged);
+                    }
 
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-                CopyFileToDesktop(path, "MyAwesomeRecording.mp4");
-#elif UNITY_IOS || UNITY_TVOS
-                PlayVideo(path);
+                }
+                //PlayVideo(path);
+                //StartCoroutine(playVideoCoroutine(path));
                 //Sharing.SaveToPhotos(path, "Glassee");
                 //Sharing.ShowShareSheet(path, true);
-#endif
-
-                // Or save to photos using the Sharing API (triggers save to file dialog on macOS)
-                // Remember to uncomment using pmjo.NextGenRecorder.Sharing at the top of the file
-                // Sharing.SaveToPhotos(path, "My Awesome Album");
-
-                // Or share using the Sharing API (only available on iOS)
-                // Sharing.ShowShareSheet(path, true);
             }
             else
             {
@@ -183,51 +196,38 @@ namespace pmjo.Examples
 
         public void UpdateSaveOrViewRecordingButton()
         {
-    #if UNITY_EDITOR ||  UNITY_STANDALONE
-            saveRecordingButton.gameObject.SetActive(true);
-            saveRecordingButton.interactable = (mLastSessionId > 0) && !Recorder.IsRecording;
-            viewRecordingButton.gameObject.SetActive(false);
-    #else
             viewRecordingButton.gameObject.SetActive(true);
             viewRecordingButton.interactable = (mLastSessionId > 0) && !Recorder.IsRecording;
             //saveRecordingButton.gameObject.SetActive(false);
-    #endif
         }
 
-    #if UNITY_EDITOR_OSX ||  UNITY_STANDALONE_OSX
-        private static void CopyFileToDesktop(string path, string fileName)
+
+        IEnumerator playVideoCoroutine(string path)
         {
-            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string dstPath = Path.Combine(desktopPath, fileName);
-
-            File.Copy(path, dstPath, true);
-
-            Debug.Log("Recording " + fileName + " copied to the desktop");
-
-
-            NativeInfoProvider.playAudio();
-            print("Garik after play audio");
-            GameObject.Find("_manager").GetComponent<UIController>().showVideoOutputRawimage();
-            GameObject.Find("_manager").GetComponent<VideoPlayerController>().setVideoPlayerUrl(path);
-
+            yield return new WaitForSeconds(5);
+            PlayVideo(path);
+            yield return null;
         }
-
-#elif UNITY_IOS || UNITY_TVOS
         private static void PlayVideo(string path)
         {
             if (!path.Contains("file://"))
             {
                 path = "file://" + path;
             }
-            print("Garik Path For Meriiiiii 111: " + path);
-            NativeInfoProvider.playAudio();
-            print("Garik after play audio");
+            Debug.Log("Garik Path For Meri 007: " + path);
+            //NativeInfoProvider.playAudio();
+            //GameObject.Find("_manager").GetComponent<VideoPlayerController>().initializeVideoPlayer(path);
+            //GameObject.Find("_manager").GetComponent<VideoPlayerController>().loadVideoFromThisURL(path);
+            //GameObject.Find("_manager").GetComponent<AudioPlayerController>().stopMicrophoneRecording();
+            //GameObject.Find("_manager").GetComponent<AudioPlayerController>().playLastAudioRecording();
+
+
             GameObject.Find("_manager").GetComponent<UIController>().showVideoOutputRawimage();
-            GameObject.Find("_manager").GetComponent<VideoPlayerController>().setVideoPlayerUrl(path);
+            GameObject.Find("_manager").GetComponent<VideoPlayerController>().setAndPlayCapturedVideo(path);
+
+            print("Garik after initializeVideoPlayer");
             //Handheld.PlayFullScreenMovie(path);
         }
-
-#endif
 
         private static void CreateEventSystemIfItDoesNotExist()
         {
