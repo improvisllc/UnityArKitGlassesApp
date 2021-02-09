@@ -137,9 +137,9 @@ public class VideoPlayerController : MonoBehaviour
 
 
 
-    void Start()
+    void Awake()
     {
-
+        //m_renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
     }
 
     // Update is called once per frame

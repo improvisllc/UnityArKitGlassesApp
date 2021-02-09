@@ -1,5 +1,5 @@
-Next Gen Recorder Free v0.9.13.0 beta
-=====================================
+Next Gen Recorder v0.9.13.0 beta
+================================
 
 Next Gen Recorder is a video recording library that takes the gameplay recording to the next level. It is available for iOS, tvOS and macOS platforms when using Metal or OpenGL renderer.
 
@@ -120,5 +120,13 @@ ALWAYS REMEMBER TO RESTART EDITOR AFTER UPDATING!
 - Fixed a regression with Virtual Screen that caused empty videos when Virtual Screen was added before Next Gen Recorder is initialized. Also fixes similar issue with command buffers.
 
 0.9.7.2:
+
+- Watermark feature was added, allows you to render a custom watermark on top of the recorded video
+- ShareSheetClosed event for the Sharing API was added, triggered when sharing sheet is closed
+- NSPhotoLibraryAddUsageDescription is now automatically added, fixes Save to photos issue in sharing modal
+- Now using CommandBuffers for the VirtualScreen instead of OnPreRender and OnPostRender
+- Updated documentation
+
+0.9.7.1:
 
 - First public release

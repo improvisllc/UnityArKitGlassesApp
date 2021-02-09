@@ -58,7 +58,6 @@ namespace pmjo.Examples
         void RecordingStarted(long sessionId)
         {
             Debug.Log("Recording started, session id " + sessionId);
-
             UpdateStartAndStopRecordingButton();
             UpdateSaveOrViewRecordingButton();
         }
