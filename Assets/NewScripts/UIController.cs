@@ -268,6 +268,15 @@ public class UIController : MonoBehaviour
         yield return null;
     }
 
-
+    public void showAlert()
+    {
+        string s1 = "AAAAAAAAAA";
+        string s2 = "BBB";
+        string s3 = "CCC";
+        char[] p1 = s1.ToCharArray();
+        char[] p2 = s2.ToCharArray();
+        char[] p3 = s3.ToCharArray();
+        NativeInfoProvider.showAlertView(p1, p2, p3); 
+    }
 
 }

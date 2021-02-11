@@ -28,6 +28,7 @@ static NSURL *soundFileURL;
 static NSString *outputPath;
 //static const char *kCallbackTarget = "ReplayKitBridge";
 static int saveVideoAndAudio;
+static int videoSaved;
 
 +(void) startRecording{
   NSArray *dirPaths;
@@ -135,76 +136,76 @@ error:(NSError *)error
     AVAsset *aVideoAsset = [AVAsset assetWithURL:videoUrl];
     
     CMTime videoTime = [aVideoAsset duration];
-  //  NSUInteger videoTotalSeconds = CMTimeGetSeconds(videoTime);
+    NSUInteger videoTotalSeconds = CMTimeGetSeconds(videoTime);
     
     CMTime audioTime = [aAudioAsset duration];
-//    NSLog(@"audioTime.value  %lld",(audioTime.value*1000)/audioTime.timescale);
+    NSLog(@"audioTime.value  %lld",(audioTime.value*1000)/audioTime.timescale);
     
     double audioMiliseconds =(audioTime.value*1000)/audioTime.timescale;
     double videoMiliseconds = (videoTime.value*1000)/videoTime.timescale;
-//    NSLog(@"audioMiliseconds  %f   videoMiliseconds  %f",audioMiliseconds,videoMiliseconds);
+    NSLog(@"audioMiliseconds  %f   videoMiliseconds  %f",audioMiliseconds,videoMiliseconds);
 
-    AVAssetExportSession *exportSession;
-    NSURL *outputURL;
-    CMTimeRange range;
+//    AVAssetExportSession *exportSession;
+//    NSURL *outputURL;
+//    CMTimeRange range;
     
-    if (audioMiliseconds > videoMiliseconds){
-      NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:aAudioAsset];
-      if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
-        outputURL = audioUrl;
-        if ([[NSFileManager defaultManager] fileExistsAtPath:outputURL.path]) {
-//          NSLog(@"output crop audio %@",outputURL.path);
-
-            [[NSFileManager defaultManager] removeItemAtPath:outputURL.path error:nil];
-        }
-        
-        exportSession = [[AVAssetExportSession alloc] initWithAsset:aAudioAsset presetName:AVAssetExportPresetHighestQuality];
-        
-        double different = audioMiliseconds - videoMiliseconds;
-//        NSLog(@"(audioTime.value*1000)/(5*audioTime.timescale)  %f    %f   %f",different/1000,  audioMiliseconds/1000,videoMiliseconds/1000);
-        
-        CMTime start = CMTimeMakeWithSeconds(different/1000, aAudioAsset.duration.timescale);
-        CMTime duration = CMTimeMakeWithSeconds(audioMiliseconds/1000, aAudioAsset.duration.timescale);
-        range = CMTimeRangeMake(start, duration);
-
-      }
-    }else if (audioMiliseconds < videoMiliseconds){
-    
-      NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:aVideoAsset];
-      if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
-        
-        outputURL = videoUrl;
-
-        if ([[NSFileManager defaultManager] fileExistsAtPath:outputURL.path]) {
-//          NSLog(@"output crop video %@",outputURL.path);
-
-            [[NSFileManager defaultManager] removeItemAtPath:outputURL.path error:nil];
-        }
-        
-        exportSession = [[AVAssetExportSession alloc] initWithAsset:aVideoAsset presetName:AVAssetExportPresetHighestQuality];
-        
-        double different = videoMiliseconds - audioMiliseconds;
-//        NSLog(@"(audioTime.value*1000)/(5*audioTime.timescale)  %f    %f   %f",different/1000,  audioMiliseconds/1000,videoMiliseconds/1000);
-        
-        CMTime start = CMTimeMakeWithSeconds(different/1000, aVideoAsset.duration.timescale);
-        CMTime duration = CMTimeMakeWithSeconds(videoMiliseconds/1000, aVideoAsset.duration.timescale);
-        range = CMTimeRangeMake(start, duration);
-      }
-    }
-    
-    exportSession.outputURL = outputURL;
-    exportSession.outputFileType = AVFileTypeMPEG4;
-    exportSession.timeRange = range;
-    
-    [exportSession exportAsynchronouslyWithCompletionHandler:^{
-        switch (exportSession.status) {
-            case AVAssetExportSessionStatusFailed:
-                saveVideoAndAudio = 0;
-                break;
-            case AVAssetExportSessionStatusCancelled:
-                saveVideoAndAudio = 0;
-                break;
-            default:{
+//    if (audioMiliseconds > videoMiliseconds){
+//      NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:aAudioAsset];
+//      if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
+//        outputURL = audioUrl;
+//        if ([[NSFileManager defaultManager] fileExistsAtPath:outputURL.path]) {
+////          NSLog(@"output crop audio %@",outputURL.path);
+//
+//            [[NSFileManager defaultManager] removeItemAtPath:outputURL.path error:nil];
+//        }
+//
+//        exportSession = [[AVAssetExportSession alloc] initWithAsset:aAudioAsset presetName:AVAssetExportPresetHighestQuality];
+//
+//        double different = audioMiliseconds - videoMiliseconds;
+////        NSLog(@"(audioTime.value*1000)/(5*audioTime.timescale)  %f    %f   %f",different/1000,  audioMiliseconds/1000,videoMiliseconds/1000);
+//
+//        CMTime start = CMTimeMakeWithSeconds(different/1000, aAudioAsset.duration.timescale);
+//        CMTime duration = CMTimeMakeWithSeconds(audioMiliseconds/1000, aAudioAsset.duration.timescale);
+//        range = CMTimeRangeMake(start, duration);
+//
+//      }
+//    }else if (audioMiliseconds < videoMiliseconds){
+//
+//      NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:aVideoAsset];
+//      if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
+//
+//        outputURL = videoUrl;
+//
+//        if ([[NSFileManager defaultManager] fileExistsAtPath:outputURL.path]) {
+////          NSLog(@"output crop video %@",outputURL.path);
+//
+//            [[NSFileManager defaultManager] removeItemAtPath:outputURL.path error:nil];
+//        }
+//
+//        exportSession = [[AVAssetExportSession alloc] initWithAsset:aVideoAsset presetName:AVAssetExportPresetHighestQuality];
+//
+//        double different = videoMiliseconds - audioMiliseconds;
+////        NSLog(@"(audioTime.value*1000)/(5*audioTime.timescale)  %f    %f   %f",different/1000,  audioMiliseconds/1000,videoMiliseconds/1000);
+//
+//        CMTime start = CMTimeMakeWithSeconds(different/1000, aVideoAsset.duration.timescale);
+//        CMTime duration = CMTimeMakeWithSeconds(videoMiliseconds/1000, aVideoAsset.duration.timescale);
+//        range = CMTimeRangeMake(start, duration);
+//      }
+//    }
+//
+//    exportSession.outputURL = outputURL;
+//    exportSession.outputFileType = AVFileTypeMPEG4;
+//    exportSession.timeRange = range;
+//
+//    [exportSession exportAsynchronouslyWithCompletionHandler:^{
+//        switch (exportSession.status) {
+//            case AVAssetExportSessionStatusFailed:
+//                saveVideoAndAudio = 0;
+//                break;
+//            case AVAssetExportSessionStatusCancelled:
+//                saveVideoAndAudio = 0;
+//                break;
+//            default:{
 //              NSLog(@"~~~~~ SUCCES ~~~~~~~~  crop audio");
                 
                 AVMutableComposition *mixComposition = [AVMutableComposition new];
@@ -212,8 +213,8 @@ error:(NSError *)error
                 NSMutableArray<AVMutableCompositionTrack *> *mutableCompositionAudioTrack = [NSMutableArray new];
                 AVMutableVideoCompositionInstruction *totalVideoCompositionInstruction = [AVMutableVideoCompositionInstruction new];
                 
-                AVAsset *aVideoAsset = [AVAsset assetWithURL:videoUrl];
-                AVAsset *aAudioAsset = [AVAsset assetWithURL:audioUrl];
+//                AVAsset *aVideoAsset = [AVAsset assetWithURL:videoUrl];
+//                AVAsset *aAudioAsset = [AVAsset assetWithURL:audioUrl];
                 
                 AVMutableCompositionTrack *videoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
                 AVMutableCompositionTrack *audioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
@@ -286,9 +287,9 @@ error:(NSError *)error
               
 
   //            [self cropVideo:outputURL];
-          }
-        }
-    }];
+//          }
+//        }
+//    }];
   
 }
 
@@ -395,6 +396,7 @@ error:(NSError *)error
 
 +(void)saveMedia:(NSURL*)videoUrl{
 //  NSLog(@"source will be : %@", videoUrl.absoluteString);
+  videoSaved = 0;
   NSURL *sourceURL = videoUrl;
 
 
@@ -403,7 +405,9 @@ error:(NSError *)error
 
           if(assetURL) {
               NSLog(@"saved down");
+            videoSaved = 1;
           } else {
+            videoSaved = 0;
               NSLog(@"something wrong");
           }
       }];
@@ -411,6 +415,7 @@ error:(NSError *)error
     
     NSURLSessionTask *download = [[NSURLSession sharedSession] downloadTaskWithURL:sourceURL completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
         if(error) {
+          videoSaved = 0;
             NSLog(@"error saving: %@", error.localizedDescription);
             return;
         }
@@ -426,11 +431,13 @@ error:(NSError *)error
             NSLog(@"%@", changeRequest.description);
         } completionHandler:^(BOOL success, NSError *error) {
             if (success) {
+              videoSaved = 1;
                 NSLog(@"saved down");
-                [[NSFileManager defaultManager] removeItemAtURL:tempURL error:nil];
+//                [[NSFileManager defaultManager] removeItemAtURL:tempURL error:nil];
             } else {
+              videoSaved = 0;
                 NSLog(@"something wrong %@", error.localizedDescription);
-                [[NSFileManager defaultManager] removeItemAtURL:tempURL error:nil];
+//                [[NSFileManager defaultManager] removeItemAtURL:tempURL error:nil];
             }
         }];
     }];
@@ -457,6 +464,10 @@ error:(NSError *)error
           else
                 [audioPlayer play];
      }
+}
+
++(int)isvideoSaved{
+    return  videoSaved;
 }
 
 
@@ -543,6 +554,10 @@ int isMergedVideoWithAudio(){
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
                                        withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker
                                              error:nil];
+  }
+
+  int isVideoSaved(){
+    return [AudioVideoControlProvider isvideoSaved];
   }
 
 }

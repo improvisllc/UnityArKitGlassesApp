@@ -96,16 +96,16 @@ namespace pmjo.Examples
 
         public void StopRecording()
         {
-            Recorder.StopRecording();
-
             if (m_isAudioRecStarted)
             {
                 NativeInfoProvider.stopAudioRecording();
                 m_isAudioRecStarted = false;
             }
+            m_canSaveVideo = true;
+            Recorder.StopRecording();
         }
 
-        public  void ExportLastRecording()
+        public void ExportLastRecording()
         {
             if (mLastSessionId > 0)
             {
@@ -114,10 +114,32 @@ namespace pmjo.Examples
         }
 
         string m_currentVideoPath = "";
+
+        /*IEnumerator audioMergeWithVideoCheckerSave(char[] p)
+        {
+            Debug.Log("Garik audioMergeWithVideoCheckerSave Call");
+            yield return new WaitUntil(() => NativeInfoProvider.isMergedVideoWithAudio() == 1);
+            NativeInfoProvider.changeSpeakerConfigurationToDefault();
+            NativeInfoProvider.saveVideo(p);
+        }*/
+
+        bool m_canSaveVideo = true;
+
         public void saveVideoToGallery()
         {
-            char[] p = m_currentVideoPath.ToCharArray();
-            NativeInfoProvider.mergeVideoWithAudio(p);
+            if (!m_canSaveVideo)
+            {
+                Debug.Log("This Video Already Saved");
+                return;
+            }
+            if (m_canSaveVideo)
+            {
+                char[] p = m_currentVideoPath.ToCharArray();
+                NativeInfoProvider.saveVideo(p);
+                m_canSaveVideo = false;
+            }
+
+            /*char[] p = m_currentVideoPath.ToCharArray();
             while (true)
             {
                 int merged = NativeInfoProvider.isMergedVideoWithAudio();
@@ -132,21 +154,39 @@ namespace pmjo.Examples
                     Debug.Log("Garik While Loop: " + merged);
                 }
 
-            }
+            }*/
             //Sharing.SaveToPhotos(m_currentVideoPath, "Glassee");
         }
         public void shareRecordedVideo()
         {
             Sharing.ShowShareSheet(m_currentVideoPath, true);
         }
+
+        float m_startMergeTime = 0;
+
+
+        IEnumerator audioMergeWithVideoCheckerPreview(string path)
+        {
+            Debug.Log("Garik audioMergeWithVideoCheckerPreview Call");
+            yield return new WaitUntil(() => NativeInfoProvider.isMergedVideoWithAudio() == 1);
+            Debug.Log("Garik already merged: " + "Play Video");
+            NativeInfoProvider.changeSpeakerConfigurationToDefault();
+            PlayVideo(path);
+        }
+
+
         void RecordingExported(long sessionId, string path, Recorder.ErrorCode errorCode)
         {
             if (errorCode == Recorder.ErrorCode.NoError)
             {
+                m_startMergeTime = Time.realtimeSinceStartup;
                 m_currentVideoPath = path;
                 Debug.Log("Recording exported to " + path + ", session id " + sessionId);
                 char[] p = m_currentVideoPath.ToCharArray();
                 NativeInfoProvider.mergeVideoWithAudio(p);
+
+                StartCoroutine(audioMergeWithVideoCheckerPreview(path));
+                return;
                 while (true)
                 {
                     int merged = NativeInfoProvider.isMergedVideoWithAudio();
@@ -159,6 +199,14 @@ namespace pmjo.Examples
                     }
                     else if(merged == 0)
                     {
+                        /*
+                        print("Garik Time Elapsed: " + (Time.realtimeSinceStartup - m_startMergeTime));
+                        print("Garik Time Now: " + (Time.realtimeSinceStartup));
+                        if (Time.realtimeSinceStartup - m_startMergeTime > 0.5)
+                        {
+                            print("Garik ggggggg");
+                            break;
+                        }*/
                         Debug.Log("Garik While Loop: " + merged);
                     }
 

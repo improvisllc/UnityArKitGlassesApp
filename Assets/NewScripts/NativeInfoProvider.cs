@@ -59,6 +59,13 @@ public class NativeInfoProvider
 #endif
     unsafe public static extern int isMergedVideoWithAudio();
 
+#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern int isVideoSaved();
+
 
 
 
@@ -90,6 +97,14 @@ public class NativeInfoProvider
     [DllImport("FaceEngine")]
 #endif
     unsafe public static extern void changeSpeakerConfigurationToDefault();
+
+
+#if UNITY_IOS
+    [DllImport("__Internal")]
+#else
+    [DllImport("FaceEngine")]
+#endif
+    unsafe public static extern void showAlertView(char[] alertMessage, char[] btn1, char[] btn2);
 
 
 
