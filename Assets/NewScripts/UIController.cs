@@ -16,6 +16,7 @@ public class UIController : MonoBehaviour
     GlassesManager m_glassesManager = new GlassesManager();
     MainController m_mainController = new MainController();
 
+    public RenderTexture m_renderTextureOutput;
 
     public GameObject m_carouselBrandsNew;
 
@@ -38,6 +39,7 @@ public class UIController : MonoBehaviour
     {
         hideVideoOutputRawimage();
         GameObject.Find("VideoPlayer").GetComponent<VideoPlayer>().Stop();
+        m_renderTextureOutput = null;
     }
     public void onSaveVideoBtnClicked()
     {
@@ -74,6 +76,7 @@ public class UIController : MonoBehaviour
         m_textureData = null;
 
         addListeners();
+        //m_renderTextureOutput = null;
     }
 
     public void firstCallForBrandsAndModels()
@@ -222,17 +225,58 @@ public class UIController : MonoBehaviour
 
     public void onCaptureButtonClicked()
     {
+
         if(!m_canTakeSnapshot)
         {
             m_canTakeSnapshot = true;
             return;
         }
-        StartCoroutine(captureScreenshot());
+        //takeScreenshot();
+        StartCoroutine(takeScreenshot());
         print("onCaptureButtonClicked");
     }
 
-    int screenshotCount = 0;
-    IEnumerator captureScreenshot()
+
+    public int resWidth = 2550;
+    public int resHeight = 3300;
+
+
+    public static string ScreenShotName(int width, int height)
+    {
+        return string.Format("{0}/screenshots/screen_{1}x{2}_{3}.png",
+                             Application.dataPath,
+                             width, height,
+                             System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+    }
+    public RawImage m_flashingImage;
+
+
+    IEnumerator takeScreenshot()
+    {
+        m_flashingImage.gameObject.SetActive(true);
+        yield return new WaitForSeconds(1);
+        print("Taking ScreenShot Garik");
+        RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+        Camera.main.targetTexture = rt;
+        Texture2D screenShot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+        Camera.main.Render();
+        RenderTexture.active = rt;
+        screenShot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+        Camera.main.targetTexture = null;
+        RenderTexture.active = null; // JC: added to avoid errors
+        Destroy(rt);
+        /*byte[] bytes = screenShot.EncodeToPNG();
+        string filename = ScreenShotName(resWidth, resHeight);
+        System.IO.File.WriteAllBytes(filename, bytes);
+        Debug.Log(string.Format("Took screenshot to: {0}", filename));*/;
+        string fileName = "Glassee";
+        string screenshotFilename;
+        string date = System.DateTime.Now.ToString("ddMMyyHHmmss");
+        screenshotFilename = fileName + "_" + date + ".jpg";
+        StartCoroutine(saveCaptureScreenshot(screenShot, "Glassee", screenshotFilename));
+
+    }
+    /*IEnumerator captureScreenshot()
     {
         yield return new WaitForEndOfFrame();
 
@@ -255,28 +299,14 @@ public class UIController : MonoBehaviour
         screenshotFilename = fileName + "_" + date + ".jpg";
 
         StartCoroutine(saveCaptureScreenshot(screenImage, "Glassee", screenshotFilename));
-
-        
-
-    }
+    }*/
 
     IEnumerator saveCaptureScreenshot(Texture2D texture, string album, string fileName)
     {
-
         yield return NativeGallery.SaveImageToGallery(texture, album, fileName, (success, path) => Debug.Log("Media save result: " + success + " " + path));
-
+        yield return new WaitForSeconds(1);
+        m_flashingImage.gameObject.SetActive(false);
         yield return null;
-    }
-
-    public void showAlert()
-    {
-        string s1 = "AAAAAAAAAA";
-        string s2 = "BBB";
-        string s3 = "CCC";
-        char[] p1 = s1.ToCharArray();
-        char[] p2 = s2.ToCharArray();
-        char[] p3 = s3.ToCharArray();
-        NativeInfoProvider.showAlertView(p1, p2, p3); 
     }
 
 }
