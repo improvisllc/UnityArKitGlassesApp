@@ -26,5 +26,9 @@ public class Constants
     public static readonly string s_frameTopPointLName = "FrameTopPointL";
     public static readonly string s_frameTopPointRName = "FrameTopPointR";
 
+    ////////////////////////////////////////////////////////////////////////
+
+
+    public static readonly string s_flashButtonPreferenceName = "FLASH_BUTTON_PREFERENCE";
 
 }

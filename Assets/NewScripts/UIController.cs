@@ -10,6 +10,8 @@ using UnityEngine.UI;
 using pmjo.NextGenRecorder;
 using pmjo.NextGenRecorder.Sharing;
 using UnityEngine.Video;
+using DG.Tweening;
+using System;
 
 public class UIController : MonoBehaviour
 {
@@ -25,6 +27,17 @@ public class UIController : MonoBehaviour
     public RectTransform m_centerCircleButton;
 
     public RectTransform m_videoOutputRawimage;
+
+    public RectTransform m_photoOutputRawimage;
+
+    public void showPhotoOutputRawimage()
+    {
+        m_photoOutputRawimage.gameObject.SetActive(true);
+    }
+    public void hidePhotoOutputRawimage()
+    {
+        m_photoOutputRawimage.gameObject.SetActive(false);
+    }
 
     public void showVideoOutputRawimage()
     {
@@ -44,11 +57,14 @@ public class UIController : MonoBehaviour
     public void onSaveVideoBtnClicked()
     {
         this.gameObject.GetComponent<pmjo.Examples.SimpleRecorder>().saveVideoToGallery();
+        showSavedTextUI();
     }
     public void onShareVideoBtnClicked()
     {
         this.gameObject.GetComponent<pmjo.Examples.SimpleRecorder>().shareRecordedVideo();
     }
+
+
     public RectTransform m_videoOutputBottomPanel;
 
     public void hideVideoOutputBottomPanel()
@@ -61,11 +77,28 @@ public class UIController : MonoBehaviour
     }
 
     GameObject m_glassesModelTextGameobject;
+    public Text m_savedText;
+
+    void showSavedTextUI()
+    {
+        m_savedText.GetComponent<Text>().DOFade(1, 0.5f).OnComplete(onFinishSavedTextShowing);
+    }
+    void onFinishSavedTextShowing()
+    {
+        StartCoroutine(onFinishSavedTextShowingCoroutine());
+    }
+    IEnumerator onFinishSavedTextShowingCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        m_savedText.GetComponent<Text>().DOFade(0, 0.5f);
+    }
+
     void Awake()
     {
         m_glassesManager = GameObject.Find("_manager").GetComponent<GlassesManager>();
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesModelTextGameobject = GameObject.Find("GlassesModelText");
+        flashButtonImageChekerOnStart();
         //m_brandsCarouselController = m_carouselBrandsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
         //m_modelsCarouselController = m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>();
     }
@@ -77,6 +110,9 @@ public class UIController : MonoBehaviour
 
         addListeners();
         //m_renderTextureOutput = null;
+
+        //initializeLineRenderers();
+        //setMaxTime(1000);
     }
 
     public void firstCallForBrandsAndModels()
@@ -119,32 +155,7 @@ public class UIController : MonoBehaviour
 
     public RawImage m_debugRawImage;
     public byte[] m_textureData;
-    public void startRecord()
-    {
-        /*
-        var texture = new Texture2D(480, 640, TextureFormat.ARGB32, false);
-        // set the pixel values
-        texture.SetPixel(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.5f));
-        texture.SetPixel(1, 0, Color.clear);
-        texture.SetPixel(0, 1, Color.white);
-        texture.SetPixel(1, 1, Color.black);
 
-        // Apply all SetPixel calls
-        texture.Apply();
-
-        NativeInfoProvider.init(480, 640);
-        print("Garik Meri After Init");
-        m_textureData = texture.EncodeToPNG();//.GetRawTextureData();
-        print("Garik Meri After GetRawTextureData");*/
-    }
-
-    public void stopRecord()
-    {
-        /*
-        NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 0);
-        m_textureData = null;
-        print("Garik Meri Stop");*/
-    }
 
 
     void addListeners()
@@ -183,19 +194,19 @@ public class UIController : MonoBehaviour
         }
     }
 
-   /* IEnumerator stopRecordingCoroutine()
-    {
-        print("Garik stopRecordingCoroutine");
-        yield return new WaitForSeconds(3);
-        GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StopRecording();
-        print("Garik after stopRecordingCoroutine");
-
-    }*/
 
     bool m_recCanStart = false;
+
+
+    float m_currentTime = 0;
+    float m_maxTime = 1000;
     void Update()
     {
-        if(m_startTimerForRecordButton)
+        m_currentTime = Mathf.Clamp(m_currentTime - Time.deltaTime, 0, m_maxTime);
+        //setTimerValue(m_currentTime, (m_maxTime - m_currentTime) / m_maxTime);
+
+
+        if (m_startTimerForRecordButton)
         {
             m_recordButtonPointerDownElapsedTime = Time.time - m_recordButtonPointerDownStartTime;
 
@@ -212,15 +223,6 @@ public class UIController : MonoBehaviour
             GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StartRecording();
             m_recCanStart = false;
         }
-        /*
-        if (m_textureData != null && m_textureData.Length > 0)
-        {
-            print("Garik Call _appendFrameFromImage");
-            print("Garik m_textureData: " + m_textureData);
-            print("Garik m_textureData Length: " + m_textureData.Length);
-
-            NativeInfoProvider._appendFrameFromImage(m_textureData, m_textureData.Length, 50, 1);
-        }*/
     }
 
     public void onCaptureButtonClicked()
@@ -231,30 +233,38 @@ public class UIController : MonoBehaviour
             m_canTakeSnapshot = true;
             return;
         }
-        //takeScreenshot();
         StartCoroutine(takeScreenshot());
         print("onCaptureButtonClicked");
     }
 
-
     public int resWidth = 2550;
     public int resHeight = 3300;
 
-
     public static string ScreenShotName(int width, int height)
     {
-        return string.Format("{0}/screenshots/screen_{1}x{2}_{3}.png",
-                             Application.dataPath,
+        return string.Format("{0}/screen_{1}x{2}_{3}.png",
+                             Application.persistentDataPath,
                              width, height,
                              System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
     }
     public RawImage m_flashingImage;
 
+    string m_currentSavedCaptureScreenshotPath = "";
+    public Texture2D m_currentCaptureScreenshot;
 
     IEnumerator takeScreenshot()
     {
-        m_flashingImage.gameObject.SetActive(true);
-        yield return new WaitForSeconds(1);
+        if (PlayerPrefs.GetInt(Constants.s_flashButtonPreferenceName) == 1)
+        {
+            m_flashingImage.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.3f);
+        }
+        if (PlayerPrefs.GetInt(Constants.s_flashButtonPreferenceName) == 0)
+        {
+            m_flashingImage.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.0f);
+        }
+
         print("Taking ScreenShot Garik");
         RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
         Camera.main.targetTexture = rt;
@@ -262,51 +272,168 @@ public class UIController : MonoBehaviour
         Camera.main.Render();
         RenderTexture.active = rt;
         screenShot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+
+        m_currentCaptureScreenshot = screenShot;
+
+
         Camera.main.targetTexture = null;
         RenderTexture.active = null; // JC: added to avoid errors
         Destroy(rt);
-        /*byte[] bytes = screenShot.EncodeToPNG();
-        string filename = ScreenShotName(resWidth, resHeight);
+        byte[] bytes = screenShot.EncodeToPNG();
+        string filename = ScreenShotName(Screen.width, Screen.height);
         System.IO.File.WriteAllBytes(filename, bytes);
-        Debug.Log(string.Format("Took screenshot to: {0}", filename));*/;
-        string fileName = "Glassee";
-        string screenshotFilename;
-        string date = System.DateTime.Now.ToString("ddMMyyHHmmss");
-        screenshotFilename = fileName + "_" + date + ".jpg";
-        StartCoroutine(saveCaptureScreenshot(screenShot, "Glassee", screenshotFilename));
+        Debug.Log(string.Format("Took screenshot to: {0}", filename));
+        m_currentSavedCaptureScreenshotPath = filename;
+        m_flashingImage.gameObject.SetActive(false);
+
+        Texture2D t = NativeGallery.LoadImageAtPath(m_currentSavedCaptureScreenshotPath);
+        yield return new WaitForSeconds(0.5f);
+        m_photoOutputRawimage.GetComponent<RawImage>().texture = t;
+        showPhotoOutputRawimage();
+        //yield return new WaitUntil(() => m_flashingImage.enabled == true);
+
 
     }
-    /*IEnumerator captureScreenshot()
-    {
-        yield return new WaitForEndOfFrame();
-
-        //print("persistent data path: garik: " + path);
-        GameObject.Find("Canvas").GetComponent<Canvas>().enabled = false;
-
-        yield return new WaitForEndOfFrame();
-
-        Texture2D screenImage = new Texture2D(Screen.width, Screen.height);
-
-        screenImage.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-        screenImage.Apply();
-
-        yield return new WaitForEndOfFrame();
-        GameObject.Find("Canvas").GetComponent<Canvas>().enabled = true;
-
-        string fileName = "Glassee";
-        string screenshotFilename;
-        string date = System.DateTime.Now.ToString("ddMMyyHHmmss");
-        screenshotFilename = fileName + "_" + date + ".jpg";
-
-        StartCoroutine(saveCaptureScreenshot(screenImage, "Glassee", screenshotFilename));
-    }*/
 
     IEnumerator saveCaptureScreenshot(Texture2D texture, string album, string fileName)
     {
-        yield return NativeGallery.SaveImageToGallery(texture, album, fileName, (success, path) => Debug.Log("Media save result: " + success + " " + path));
-        yield return new WaitForSeconds(1);
+        yield return NativeGallery.SaveImageToGallery(texture, album, fileName, (success, path) => Debug.Log("Garik Media save result: " + success + " " + path));
+        print("Garik m_currentSavedCaptureScreenshotPath: " + m_currentSavedCaptureScreenshotPath);
+        //yield return new WaitForSeconds(1);
         m_flashingImage.gameObject.SetActive(false);
         yield return null;
     }
+    public void onSaveCurrentCapturedScreenshotToGallery()
+    {
+        string fileName = "Glassee";
+        string screenshotFilename;
+        string date = System.DateTime.Now.ToString("ddMMyyHHmmss");
+        screenshotFilename = fileName + "_" + date + ".jpg";
+        StartCoroutine(saveCaptureScreenshot(m_currentCaptureScreenshot, "Glassee", screenshotFilename));
+    }
+    public void onShareCurrentCapturedScreenshot()
+    {
+        Sharing.ShowShareSheet(m_currentSavedCaptureScreenshotPath);
+    }
+    public void onCloseCapturedScreenshotPanel()
+    {
+        hidePhotoOutputRawimage(); 
+    }
 
+    public RectTransform m_flashButton;
+    public void onFlashButtonClicked()
+    {
+        print("onFlashButtonClicked clicked");
+        if (m_flashButton.GetChild(0).gameObject.activeInHierarchy)
+        {
+            print("00000 is active");
+            PlayerPrefs.SetInt(Constants.s_flashButtonPreferenceName, 0);
+            m_flashButton.GetChild(0).gameObject.SetActive(false);
+            m_flashButton.GetChild(1).gameObject.SetActive(true);
+            return;
+        }
+        if (m_flashButton.GetChild(1).gameObject.activeInHierarchy)
+        {
+            print("111111 is active");
+            PlayerPrefs.SetInt(Constants.s_flashButtonPreferenceName, 1);
+            m_flashButton.GetChild(1).gameObject.SetActive(false);
+            m_flashButton.GetChild(0).gameObject.SetActive(true);
+            return;
+        }
+
+    }
+
+    void flashButtonImageChekerOnStart()
+    {
+        if(PlayerPrefs.GetInt(Constants.s_flashButtonPreferenceName,1) == 1)
+        {
+            m_flashButton.GetChild(0).gameObject.SetActive(true);
+            m_flashButton.GetChild(1).gameObject.SetActive(false);
+        }
+        if (PlayerPrefs.GetInt(Constants.s_flashButtonPreferenceName) == 0)
+        {
+            m_flashButton.GetChild(0).gameObject.SetActive(false);
+            m_flashButton.GetChild(1).gameObject.SetActive(true);
+        }
+    }
+
+
+
+
+
+
+
+
+
+    /*
+
+
+
+
+
+    public void setMaxTime(float m)
+    {
+        m_maxTime = m;
+        setTimerValue(m_currentTime, (m_maxTime - m_currentTime) / m_maxTime);
+    }
+
+
+
+    LineRenderer m_ellapsedTimeLineRenderer;// = new LineRenderer();
+    GameObject m_ellapsedTimeLineRendererGameObject;// = new LineRenderer();
+    GameObject m_passedCheckPointsIndicator;// = new LineRenderer();
+
+    public void setTimerValue(float val, float normalizedValue)
+    {
+        System.TimeSpan t = System.TimeSpan.FromSeconds(val);
+        string answer = string.Format("{1:D2}m {2:D2}s",
+            t.Hours,
+            t.Minutes,
+            t.Seconds,
+            t.Milliseconds);
+
+        //m_canvasController.m_timerItem.text = answer;
+        updateEllapsedTimeLineRenderer(normalizedValue);
+    }
+
+    void initializeLineRenderers()
+    {
+
+        m_ellapsedTimeLineRendererGameObject = new GameObject("ellapsedTimeLineRenderer");
+
+        m_ellapsedTimeLineRendererGameObject.transform.position = Vector3.zero;
+
+        m_ellapsedTimeLineRenderer = m_ellapsedTimeLineRendererGameObject.AddComponent<LineRenderer>();
+
+       //Material passedCheckPointIndicatorMaterial = Resources.Load(Constants.s_globalObjectsFolderName + "/" + Constants.s_passedCheckPointIndicatorMaterialsResourceFolderName + "/" + Constants.s_gimblePassedCheckPointIndicatorMaterialResourceName, typeof(Material)) as Material;
+
+       //m_ellapsedTimeLineRenderer.material = passedCheckPointIndicatorMaterial;
+
+    }
+
+    public void updateEllapsedTimeLineRenderer(float scale)
+    {
+        float x;
+        float y;
+        float z = 1f;
+
+        float angle = 0f;
+
+        int segments = 128;
+        float width = 0.02f;
+        float xRadius = 0.5f - width;
+        float yRadius = 0.5f - width;
+
+        m_ellapsedTimeLineRenderer.SetVertexCount(segments + 1);
+        m_ellapsedTimeLineRenderer.SetColors(new Color(255, 0, 0), new Color(200, 0, 0));
+        m_ellapsedTimeLineRenderer.SetWidth(width, width);
+
+        for (int i = 0; i < segments + 1; i++)
+        {
+            x = Mathf.Sin(Mathf.Deg2Rad * angle) * xRadius;
+            y = Mathf.Cos(Mathf.Deg2Rad * angle) * yRadius;
+            m_ellapsedTimeLineRenderer.SetPosition(i, new Vector3(x, y, z) + Vector3.zero);
+            angle += ((scale * 360.0f) / segments);
+        }
+    }*/
 }
