@@ -85,7 +85,7 @@ public class MainController : MonoBehaviour
                 m_facePoints[i].transform.SetParent(m_aRFace.transform);
                 //m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);  
             }*/
-
+            print("Garik DDDEEEBBBUUUGGG");
             m_facePoints[888].transform.localPosition = m_mesh.vertices[888];
             m_facePoints[888].transform.SetParent(m_aRFace.transform);
 
@@ -128,7 +128,7 @@ public class MainController : MonoBehaviour
 
     void fitGlasses()
     {
-
+        print("Garik m_currentGlasses: " + m_currentGlasses.name);
         //print("Garik fit glasses calling");
         /*
         m_facePoints[467].GetComponent<MeshRenderer>().material.color = Color.red; // Left Ear Point

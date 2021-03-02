@@ -28,7 +28,7 @@ public class AppStateController : MonoBehaviour
 
     void OnApplicationPause(bool pauseStatus)
     {
-        Debug.Log("Garik pauseStatus " + pauseStatus);
+        //Debug.Log("Garik pauseStatus " + pauseStatus);
         m_isPaused = pauseStatus;
 
         if (pauseStatus)

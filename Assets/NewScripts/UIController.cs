@@ -18,6 +18,13 @@ public class UIController : MonoBehaviour
     GlassesManager m_glassesManager = new GlassesManager();
     MainController m_mainController = new MainController();
 
+    public InputField m_searchInputField;
+    public RectTransform m_searchPanel;
+    public RectTransform m_searchResultPanel;
+    public RectTransform m_FoundGlassesTemplate;
+
+    public RectTransform m_bottomButtonsPanel;
+
     public RenderTexture m_renderTextureOutput;
 
     public GameObject m_carouselBrandsNew;
@@ -29,6 +36,17 @@ public class UIController : MonoBehaviour
     public RectTransform m_videoOutputRawimage;
 
     public RectTransform m_photoOutputRawimage;
+
+
+    public void showSearchPanel()
+    {
+        m_searchPanel.gameObject.SetActive(true);
+    }
+    public void hideSearchPanel()
+    {
+        m_searchPanel.gameObject.SetActive(false);
+    }
+
 
     public void showPhotoOutputRawimage()
     {
@@ -95,6 +113,17 @@ public class UIController : MonoBehaviour
 
     void Awake()
     {
+        /*
+        TouchScreenKeyboard keyboard = new TouchScreenKeyboard("", TouchScreenKeyboardType.Default, false, false, false, false, "", 100);
+        TouchScreenKeyboard.hideInput = true;*/
+
+        m_searchInputField.keyboardType =  TouchScreenKeyboardType.Default;
+
+
+
+            
+
+
         m_glassesManager = GameObject.Find("_manager").GetComponent<GlassesManager>();
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesModelTextGameobject = GameObject.Find("GlassesModelText");
@@ -117,22 +146,23 @@ public class UIController : MonoBehaviour
 
     public void firstCallForBrandsAndModels()
     {
-        m_glassesManager.showModels("Aristar");
+        m_glassesManager.showModels("Prada");
     }
 
-    public void onBrandOrModelButtonClicked(PointerEventData data)
+    public void onBrandButtonClicked(PointerEventData data)
+    {
+        string d = data.pointerClick.name;
+        m_glassesManager.showModels(d);
+    }
+    /*public void onModelButtonClicked(PointerEventData data)
     {
         string d = data.pointerClick.name;
         if(d.Contains("glasses_"))
         {
             print("Garik: Model Name: " + d);
             onModelButtonClicked(data);
-            return;
         }
-        print("Garik: Brand Name: " + d);
-
-        m_glassesManager.showModels(d);
-    }
+    }*/
 
 
     public void addBrandToCarousel(string name, Texture2D tex)
@@ -187,7 +217,7 @@ public class UIController : MonoBehaviour
     {
         if(m_startTimerForRecordButton)
         {
-            print("Garik Stop Recording");
+            //print("Garik Stop Recording");
             m_startTimerForRecordButton = false;
             GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StopRecording();
             //StartCoroutine(stopRecordingCoroutine());
@@ -219,7 +249,7 @@ public class UIController : MonoBehaviour
 
         if(m_recCanStart)
         {
-            print("Garik Start Recording");
+            //print("Garik Start Recording");
             GameObject.Find("_manager").GetComponent<pmjo.Examples.SimpleRecorder>().StartRecording();
             m_recCanStart = false;
         }
@@ -234,7 +264,7 @@ public class UIController : MonoBehaviour
             return;
         }
         StartCoroutine(takeScreenshot());
-        print("onCaptureButtonClicked");
+        //print("onCaptureButtonClicked");
     }
 
     public int resWidth = 2550;
@@ -265,7 +295,7 @@ public class UIController : MonoBehaviour
             yield return new WaitForSeconds(0.0f);
         }
 
-        print("Taking ScreenShot Garik");
+        //print("Taking ScreenShot Garik");
         RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
         Camera.main.targetTexture = rt;
         Texture2D screenShot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
@@ -298,7 +328,7 @@ public class UIController : MonoBehaviour
     IEnumerator saveCaptureScreenshot(Texture2D texture, string album, string fileName)
     {
         yield return NativeGallery.SaveImageToGallery(texture, album, fileName, (success, path) => Debug.Log("Garik Media save result: " + success + " " + path));
-        print("Garik m_currentSavedCaptureScreenshotPath: " + m_currentSavedCaptureScreenshotPath);
+        //print("Garik m_currentSavedCaptureScreenshotPath: " + m_currentSavedCaptureScreenshotPath);
         //yield return new WaitForSeconds(1);
         m_flashingImage.gameObject.SetActive(false);
         yield return null;
@@ -323,10 +353,9 @@ public class UIController : MonoBehaviour
     public RectTransform m_flashButton;
     public void onFlashButtonClicked()
     {
-        print("onFlashButtonClicked clicked");
+        //print("onFlashButtonClicked clicked");
         if (m_flashButton.GetChild(0).gameObject.activeInHierarchy)
         {
-            print("00000 is active");
             PlayerPrefs.SetInt(Constants.s_flashButtonPreferenceName, 0);
             m_flashButton.GetChild(0).gameObject.SetActive(false);
             m_flashButton.GetChild(1).gameObject.SetActive(true);
@@ -334,7 +363,6 @@ public class UIController : MonoBehaviour
         }
         if (m_flashButton.GetChild(1).gameObject.activeInHierarchy)
         {
-            print("111111 is active");
             PlayerPrefs.SetInt(Constants.s_flashButtonPreferenceName, 1);
             m_flashButton.GetChild(1).gameObject.SetActive(false);
             m_flashButton.GetChild(0).gameObject.SetActive(true);
@@ -356,84 +384,4 @@ public class UIController : MonoBehaviour
             m_flashButton.GetChild(1).gameObject.SetActive(true);
         }
     }
-
-
-
-
-
-
-
-
-
-    /*
-
-
-
-
-
-    public void setMaxTime(float m)
-    {
-        m_maxTime = m;
-        setTimerValue(m_currentTime, (m_maxTime - m_currentTime) / m_maxTime);
-    }
-
-
-
-    LineRenderer m_ellapsedTimeLineRenderer;// = new LineRenderer();
-    GameObject m_ellapsedTimeLineRendererGameObject;// = new LineRenderer();
-    GameObject m_passedCheckPointsIndicator;// = new LineRenderer();
-
-    public void setTimerValue(float val, float normalizedValue)
-    {
-        System.TimeSpan t = System.TimeSpan.FromSeconds(val);
-        string answer = string.Format("{1:D2}m {2:D2}s",
-            t.Hours,
-            t.Minutes,
-            t.Seconds,
-            t.Milliseconds);
-
-        //m_canvasController.m_timerItem.text = answer;
-        updateEllapsedTimeLineRenderer(normalizedValue);
-    }
-
-    void initializeLineRenderers()
-    {
-
-        m_ellapsedTimeLineRendererGameObject = new GameObject("ellapsedTimeLineRenderer");
-
-        m_ellapsedTimeLineRendererGameObject.transform.position = Vector3.zero;
-
-        m_ellapsedTimeLineRenderer = m_ellapsedTimeLineRendererGameObject.AddComponent<LineRenderer>();
-
-       //Material passedCheckPointIndicatorMaterial = Resources.Load(Constants.s_globalObjectsFolderName + "/" + Constants.s_passedCheckPointIndicatorMaterialsResourceFolderName + "/" + Constants.s_gimblePassedCheckPointIndicatorMaterialResourceName, typeof(Material)) as Material;
-
-       //m_ellapsedTimeLineRenderer.material = passedCheckPointIndicatorMaterial;
-
-    }
-
-    public void updateEllapsedTimeLineRenderer(float scale)
-    {
-        float x;
-        float y;
-        float z = 1f;
-
-        float angle = 0f;
-
-        int segments = 128;
-        float width = 0.02f;
-        float xRadius = 0.5f - width;
-        float yRadius = 0.5f - width;
-
-        m_ellapsedTimeLineRenderer.SetVertexCount(segments + 1);
-        m_ellapsedTimeLineRenderer.SetColors(new Color(255, 0, 0), new Color(200, 0, 0));
-        m_ellapsedTimeLineRenderer.SetWidth(width, width);
-
-        for (int i = 0; i < segments + 1; i++)
-        {
-            x = Mathf.Sin(Mathf.Deg2Rad * angle) * xRadius;
-            y = Mathf.Cos(Mathf.Deg2Rad * angle) * yRadius;
-            m_ellapsedTimeLineRenderer.SetPosition(i, new Vector3(x, y, z) + Vector3.zero);
-            angle += ((scale * 360.0f) / segments);
-        }
-    }*/
 }

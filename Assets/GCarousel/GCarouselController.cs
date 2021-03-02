@@ -107,14 +107,14 @@ public class GCarouselController : MonoBehaviour
     IEnumerator focusItemCoroutine()
     {
         yield return new WaitForEndOfFrame();
-        Debug.Log("SIZE DELTA " + m_carouselPanel.GetComponent<RectTransform>().sizeDelta.x);
+        //Debug.Log("SIZE DELTA " + m_carouselPanel.GetComponent<RectTransform>().sizeDelta.x);
         if (m_focusedItemIndex <= m_cellList.Count - 1)
         {
             focusOnItem(m_focusedItemIndex,0.0f);
         }
         else
         {
-            Debug.Log("Can't focus on index " + m_focusedItemIndex + "  " + "no such element in cell list");
+            //Debug.Log("Can't focus on index " + m_focusedItemIndex + "  " + "no such element in cell list");
         }
     }
     public void focusOnCellIndex(int cellIndex)
@@ -134,7 +134,7 @@ public class GCarouselController : MonoBehaviour
 
         if (this.gameObject.transform.parent.name.Contains("Models"))
         {
-            GameObject.Find("_manager").GetComponent<UIController>().onBrandOrModelButtonClicked(data);
+            GameObject.Find("_manager").GetComponent<UIController>().onModelButtonClicked(data);
 
 
             m_selectedModelMarker.transform.SetParent(cell.transform);
@@ -210,7 +210,7 @@ public class GCarouselController : MonoBehaviour
             cell.transform.parent.transform.DOMoveX(destPos, 0.2f);
         }*/
 
-        GameObject.Find("_manager").GetComponent<UIController>().onBrandOrModelButtonClicked(data);
+        GameObject.Find("_manager").GetComponent<UIController>().onBrandButtonClicked(data);
 
     }
 

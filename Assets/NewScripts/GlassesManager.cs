@@ -13,7 +13,11 @@ public class GlassesManager : MonoBehaviour
     UIController m_uIController;
     MainController m_mainController;
 
-    string m_currentModelsPath = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + "Aristar" + "/Models"; //TODO change Adensco
+    string m_currentModelsPath = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + "Prada" + "/Models"; //TODO change Adensco
+    public void setCurrentModelsPath(string path)
+    {
+        m_currentModelsPath = path;
+    }
 
     void Awake()
     {
@@ -21,7 +25,7 @@ public class GlassesManager : MonoBehaviour
         m_mainController = GameObject.Find("_manager").GetComponent<MainController>();
         m_glassesContainer = GameObject.Find("GlassesContainer");
         initializeBrands();
-        StartCoroutine(loadGlasses("glasses_15"));
+        //StartCoroutine(loadGlasses("glasses_15"));
     }
 
     public Texture2D m_debugTexture;
@@ -60,37 +64,47 @@ public class GlassesManager : MonoBehaviour
 
         FileInfo[] fis = d.GetFiles();
 
-
+        int modelCounter = 0;
         List<int> nameIndexList = new List<int>();
         foreach (FileInfo fi in fis)
         {
-            if (fi.Extension.Contains("png"))
+            if (fi.Extension.Contains("jpg"))
             {
+                modelCounter++;
                 string s = fi.ToString();
+                //print("GARIK FI NAMEEEEE: " + fi.Name);
+                Texture2D tex = getTexture2D(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models/" + fi.Name);
+
+                //string nameIndexWithExtention = fileName.Split('_').Last();
+                string nameIndexNoExtention = Path.GetFileNameWithoutExtension(fi.Name);
+
+                m_uIController.addModelToCarousel(nameIndexNoExtention, tex);
+                //m_uIController.addModelToCarousel("glasses_" + nameIndexList[modelCounter], tex);
+                /*
                 string fileName = s.Split('/').Last();
 
                 string nameIndexWithExtention = fileName.Split('_').Last();
                 string nameIndexNoExtention = Path.GetFileNameWithoutExtension(nameIndexWithExtention);
 
                 //print("Garik nameIndex: " + nameIndexNoExtention);
-                nameIndexList.Add(int.Parse(nameIndexNoExtention));
+                nameIndexList.Add(int.Parse(nameIndexNoExtention));*/
             }
         }
-        int maxNameIndex = nameIndexList.Max();
+        /*int maxNameIndex = nameIndexList.Max();
         int minNameIndex = nameIndexList.Min();
         nameIndexList.Sort();
 
         int modelCounter = 0;
         foreach (FileInfo fi in fis)
         {
-            if (fi.Extension.Contains("png"))
+            if (fi.Extension.Contains("jpg"))
             {
-                Texture2D tex = getTexture2D(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models/" + "glasses_" + nameIndexList[modelCounter] + ".png");
+                Texture2D tex = getTexture2D(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models/" + nameIndexList[modelCounter] + ".jpg");
                 m_uIController.addModelToCarousel("glasses_" + nameIndexList[modelCounter], tex);
                 modelCounter++;
 
             }
-        }
+        }*/
         m_uIController.m_carouselModelsNew.SetActive(true);
 
         //Invoke("focusModelsInvokeMethod", 0.1f);
@@ -130,16 +144,14 @@ public class GlassesManager : MonoBehaviour
         GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().focusOnItem(2, 0);
     }*/
 
-
-
     public IEnumerator loadGlasses(string glassesName)
     {
         if (m_mainController.m_currentGlasses != null)
         {
             Destroy(m_mainController.m_currentGlasses);
         }
-        //print("Garik combine string: " + Path.Combine(m_currentModelsPath, glassesName));
-        var bundleLoadRequest = AssetBundle.LoadFromFileAsync(Path.Combine(m_currentModelsPath, glassesName));
+        print("Garik combine string: " + Path.Combine(m_currentModelsPath, glassesName.ToLower()));
+        var bundleLoadRequest = AssetBundle.LoadFromFileAsync(Path.Combine(m_currentModelsPath, glassesName.ToLower()));
 
         yield return bundleLoadRequest;
 
@@ -150,14 +162,14 @@ public class GlassesManager : MonoBehaviour
             yield break;
         }
 
-        var assetLoadRequest = myLoadedAssetBundle.LoadAssetAsync<GameObject>(glassesName);
+        var assetLoadRequest = myLoadedAssetBundle.LoadAssetAsync<GameObject>(glassesName.ToLower());
         yield return assetLoadRequest;
 
         GameObject prefab = assetLoadRequest.asset as GameObject;
 
         GameObject g = Instantiate(prefab);
         g.name = glassesName;
-        g.SetActive(false);
+        g.SetActive(true);
         g.transform.SetParent(m_glassesContainer.transform);
         myLoadedAssetBundle.Unload(false);
 
@@ -165,9 +177,6 @@ public class GlassesManager : MonoBehaviour
 
         //GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_selectedModelMarker.transform.SetParent(GameObject.Find(glassesName).transform);
         //GameObject.Find("SelectedModelMarker");//.transform.SetParent(GameObject.Find(glassesName).transform);
-
-
-
     }
 
     void Update()
