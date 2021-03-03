@@ -24,6 +24,17 @@ public class SearchController : MonoBehaviour
     GlassesManager m_glassesManager;
 
     GameObject m_glassesContainer;
+
+
+    //TouchScreenKeyboard m_searchKeyboard = new TouchScreenKeyboard("", TouchScreenKeyboardType.Default, false, false, false, false, "", 100);
+    //TouchScreenKeyboard.hideInput = true;
+
+    private void Awake()
+    {
+
+
+    }
+
     void Start()
     {
         m_uIController = GameObject.Find("_manager").GetComponent<UIController>();
@@ -33,6 +44,15 @@ public class SearchController : MonoBehaviour
         m_glassesContainer = GameObject.Find("GlassesContainer");
         initializeGlassesInfo();
         m_uIController.hideSearchPanel();
+
+
+        TouchScreenKeyboard.hideInput = true;
+
+        EventTrigger eventTrigger = m_uIController.m_searchInputField.gameObject.AddComponent<EventTrigger>();
+        EventTrigger.Entry ptrClickEntry = new EventTrigger.Entry();
+        ptrClickEntry.eventID = EventTriggerType.PointerClick;
+        ptrClickEntry.callback.AddListener((data) => { onSearchInputFieldPtrClicked((PointerEventData)data); });
+        eventTrigger.triggers.Add(ptrClickEntry);
 
 
 
@@ -47,6 +67,26 @@ public class SearchController : MonoBehaviour
         }*/
 
         m_uIController.m_searchInputField.onValueChanged.AddListener(delegate { onSearchInputFieldValueChanged(); });
+
+        //m_uIController.m_searchInputField..AddListener(delegate { onSearchInputFieldEdit(); });
+    }
+
+    IEnumerator touchScreenKeyboardVisibilityCorotuine()
+    {
+        yield return new WaitUntil(() => TouchScreenKeyboard.visible == true);
+        TouchScreenKeyboard.hideInput = true;
+        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(false);
+        yield return new WaitUntil(() => TouchScreenKeyboard.visible == false);
+        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(true);
+
+        //print("Garik +++ TouchScreenKeyboard.Status.Visible");
+    }
+
+    public void onSearchInputFieldPtrClicked(PointerEventData data)
+    {
+        print("Garik Clicked On Search Input Field");
+        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(false);
+        StartCoroutine(touchScreenKeyboardVisibilityCorotuine());
     }
 
     /*void updateSearchResultsUI()
@@ -62,8 +102,9 @@ public class SearchController : MonoBehaviour
 
     void onSearchInputFieldValueChanged()
     {
+        //TouchScreenKeyboard.hideInput = true;
         m_uIController.showSearchPanel();
-        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(false);
+
         for (int i = 0; i < m_uIController.m_searchResultPanel.childCount; i++)
         {
             Destroy(m_uIController.m_searchResultPanel.GetChild(i).gameObject);
@@ -251,6 +292,14 @@ public class SearchController : MonoBehaviour
     //List<GlassesInfo>  = new List<GlassesInfo>();
     void Update()
     {
+//        .hideInput = true;
+        /*
+        print("Garik Keyboard Status Done " + TouchScreenKeyboard.Status.Done);
+        print("Garik Keyboard Status Visible " + TouchScreenKeyboard.Status.Visible);
+        print("Garik Keyboard Status LostFocus " + TouchScreenKeyboard.Status.LostFocus);
+        print("Garik Keyboard Status Canceled " + TouchScreenKeyboard.Status.Canceled);*/
+        //TouchScreenKeyboard.hideInput = true;
+        //print("Garik m_searchKeyboard text: " + m_searchKeyboard.text);
         /*
         string findText = m_uIController.m_searchInputField.text;
         print("Search Input Field Val: " + findText);

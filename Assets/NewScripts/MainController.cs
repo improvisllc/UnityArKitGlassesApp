@@ -85,7 +85,7 @@ public class MainController : MonoBehaviour
                 m_facePoints[i].transform.SetParent(m_aRFace.transform);
                 //m_facePoints[i].transform.GetChild(0).transform.LookAt(Camera.main.transform.position);  
             }*/
-            print("Garik DDDEEEBBBUUUGGG");
+            //print("Garik DDDEEEBBBUUUGGG");
             m_facePoints[888].transform.localPosition = m_mesh.vertices[888];
             m_facePoints[888].transform.SetParent(m_aRFace.transform);
 

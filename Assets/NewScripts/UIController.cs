@@ -113,11 +113,9 @@ public class UIController : MonoBehaviour
 
     void Awake()
     {
-        /*
-        TouchScreenKeyboard keyboard = new TouchScreenKeyboard("", TouchScreenKeyboardType.Default, false, false, false, false, "", 100);
-        TouchScreenKeyboard.hideInput = true;*/
 
-        m_searchInputField.keyboardType =  TouchScreenKeyboardType.Default;
+
+        //m_searchInputField.keyboardType =  TouchScreenKeyboardType.Default;
 
 
 
