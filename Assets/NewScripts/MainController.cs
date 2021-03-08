@@ -128,7 +128,7 @@ public class MainController : MonoBehaviour
 
     void fitGlasses()
     {
-        print("Garik m_currentGlasses: " + m_currentGlasses.name);
+        //print("Garik m_currentGlasses: " + m_currentGlasses.name);
         //print("Garik fit glasses calling");
         /*
         m_facePoints[467].GetComponent<MeshRenderer>().material.color = Color.red; // Left Ear Point

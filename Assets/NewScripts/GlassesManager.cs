@@ -52,10 +52,8 @@ public class GlassesManager : MonoBehaviour
             for (int i = 0; i < c; i++)
             {
                 Destroy(GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").GetChild(i).gameObject);
-
             }
         }
-
 
         m_currentModelsPath = brandName;
 

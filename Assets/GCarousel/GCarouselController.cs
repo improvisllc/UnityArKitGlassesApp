@@ -34,7 +34,7 @@ public class GCarouselController : MonoBehaviour
         cell.name = name;
         cell.GetComponent<RawImage>().texture = texture;
         m_cellList.Add(cell.GetComponent<RectTransform>());
-
+        cell.transform.localScale = Vector3.one;
 
         RectTransform rt = cell.GetComponent<RectTransform>();
         rt.GetComponent<FixScrollRect>().MainScroll = rt.parent.parent.parent.GetComponent<ScrollRect>();
@@ -80,27 +80,26 @@ public class GCarouselController : MonoBehaviour
         }
     }
 
-    public GameObject m_selectedBrandBorder;
-    public GameObject m_selectedModelMarker;
+    //public GameObject m_selectedBrandBorder;
+    //public GameObject m_selectedModelMarker;
+    UIController m_uIController;
 
     void Awake()
     {
-        m_selectedBrandBorder = GameObject.Find("SelectedBrandBorder");
-        m_selectedModelMarker = GameObject.Find("SelectedModelMarker");
+        //m_selectedBrandBorder = GameObject.Find("SelectedBrandBorder");
+        //m_selectedModelMarker = GameObject.Find("SelectedModelMarker");
+        m_uIController = GameObject.Find("_manager").GetComponent<UIController>();
     }
     void Start()
     {
         if (this.gameObject.transform.parent.name.Contains("Models"))
         {
             this.gameObject.transform.parent.GetComponent<ScrollRect>().inertia = true;
-
-
-
         }
         else
         {
-            m_selectedBrandBorder.transform.SetParent(m_cellList[2]);
-            m_selectedBrandBorder.transform.localPosition = Vector3.zero;
+            m_uIController.m_selectedBrandBorder.transform.SetParent(m_cellList[2]);
+            m_uIController.m_selectedBrandBorder.transform.localPosition = Vector3.zero;
         }
     }
 
@@ -125,24 +124,24 @@ public class GCarouselController : MonoBehaviour
 
     public void onCellClicked(PointerEventData data)
     {
-        string clickedCellNam = data.pointerClick.name;
+        string clickedCellName = data.pointerClick.name;
 
-        GameObject cell = GameObject.Find(clickedCellNam).gameObject;
+        GameObject cell = GameObject.Find(clickedCellName).gameObject;
 
-        m_selectedModelMarker.transform.SetParent(null);
+        print("clickedCellName: " + clickedCellName);
+
+        m_uIController.m_selectedModelMarker.transform.SetParent(null);
 
 
         if (this.gameObject.transform.parent.name.Contains("Models"))
         {
             GameObject.Find("_manager").GetComponent<UIController>().onModelButtonClicked(data);
 
+            m_uIController.m_selectedModelMarker.transform.SetParent(cell.transform);
 
-            m_selectedModelMarker.transform.SetParent(cell.transform);
+            m_uIController.m_selectedModelMarker.transform.localPosition = new Vector3(0, -99.0f, 0);
 
-            m_selectedModelMarker.transform.localPosition = new Vector3(0, -99.0f, 0);
-
-            //Vector3 lp = m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition;
-            //m_carouselPanel.Find("Viewport").Find("Content").transform.localPosition = new Vector3(lp.x + 294 + m_distanceBetweenCells, lp.y, lp.z);
+            m_uIController.m_selectedModelMarker.SetActive(true);
             return;
         }
 
@@ -151,15 +150,12 @@ public class GCarouselController : MonoBehaviour
 
         float distance = Vector3.Distance(cell.transform.position, m_carouselCenterPoint.transform.position);
 
-
         float globalCenterX = m_carouselCenterPoint.transform.position.x;
-
-
 
         if (this.gameObject.transform.parent.name.Contains("Brands"))
         {
-            m_selectedBrandBorder.transform.position = data.pointerClick.transform.position;
-            m_selectedBrandBorder.transform.SetParent(cell.transform);
+            m_uIController.m_selectedBrandBorder.transform.position = data.pointerClick.transform.position;
+            m_uIController.m_selectedBrandBorder.transform.SetParent(cell.transform);
             /*
             if(data.pointerClick.transform.position.x > m_carouselCenterPoint.transform.position.x + m_cell.sizeDelta.x / 2)
             {

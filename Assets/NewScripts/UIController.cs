@@ -31,6 +31,9 @@ public class UIController : MonoBehaviour
 
     public GameObject m_carouselModelsNew;
 
+    public GameObject m_selectedBrandBorder;
+    public GameObject m_selectedModelMarker;
+
     public RectTransform m_centerCircleButton;
 
     public RectTransform m_videoOutputRawimage;
@@ -146,10 +149,11 @@ public class UIController : MonoBehaviour
     {
         m_glassesManager.showModels("Prada");
     }
-
+    string m_currentChoosedClickedName = "";
     public void onBrandButtonClicked(PointerEventData data)
     {
         string d = data.pointerClick.name;
+        m_currentChoosedClickedName = d;
         m_glassesManager.showModels(d);
     }
     /*public void onModelButtonClicked(PointerEventData data)
@@ -381,5 +385,37 @@ public class UIController : MonoBehaviour
             m_flashButton.GetChild(0).gameObject.SetActive(false);
             m_flashButton.GetChild(1).gameObject.SetActive(true);
         }
+    }
+
+    public void onBackSearchBtnClicked()
+    {
+        /*m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().setCellArrangementMethod(GCarouselController.CellArrangementMethod.eFromCenterToRight);
+
+        if (GameObject.Find("CarouselModelsNEW") != null)
+        {
+            int c = GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").childCount;
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Clear();
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Capacity = 0;
+            for (int k = 0; k < c; k++)
+            {
+                Destroy(GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").GetChild(k).gameObject);
+
+            }
+        }*/
+
+        print("Garik m_currentChoosedClickedName " + m_currentChoosedClickedName);
+        if(!m_searchPanel.gameObject.activeSelf)
+        {
+            showSearchPanel();
+            return;
+        }
+        else
+        {
+            hideSearchPanel(); 
+        }
+
+        m_bottomButtonsPanel.gameObject.SetActive(true);
+        m_carouselBrandsNew.SetActive(true);
+        m_glassesManager.showModels(m_currentChoosedClickedName);
     }
 }

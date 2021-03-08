@@ -85,7 +85,30 @@ public class SearchController : MonoBehaviour
     public void onSearchInputFieldPtrClicked(PointerEventData data)
     {
         print("Garik Clicked On Search Input Field");
+        m_uIController.m_selectedModelMarker.transform.SetParent(null);
+        m_uIController.m_selectedModelMarker.SetActive(false);
+
+
+        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().setCellArrangementMethod(GCarouselController.CellArrangementMethod.eFromCenterToRight);
+
+        if (GameObject.Find("CarouselModelsNEW") != null)
+        {
+            int c = GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").childCount;
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Clear();
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Capacity = 0;
+            for (int k = 0; k < c; k++)
+            {
+                Destroy(GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").GetChild(k).gameObject);
+
+            }
+        }
+
+
         m_uIController.m_bottomButtonsPanel.gameObject.SetActive(false);
+        m_uIController.m_carouselBrandsNew.SetActive(false);
+        //m_uIController.m_carouselModelsNew.SetActive(false);
+        //m_uIController.m_carouselModelsNew.transform.localScale = Vector3.zero;
+
         StartCoroutine(touchScreenKeyboardVisibilityCorotuine());
     }
 
@@ -118,24 +141,28 @@ public class SearchController : MonoBehaviour
         List<GlassesInfo> returnedGlassesInfoList = findGlassesList(m_glassesInfoList, findText);
 
 
+        m_uIController.m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().setCellArrangementMethod(GCarouselController.CellArrangementMethod.eFromCenterToRight);
 
+        if (GameObject.Find("CarouselModelsNEW") != null)
+        {
+            int c = GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").childCount;
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Clear();
+            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Capacity = 0;
+            for (int k = 0; k < c; k++)
+            {
+                Destroy(GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").GetChild(k).gameObject);
+
+            }
+        }
         for (int i = 0; i < returnedGlassesInfoList.Count; i++)
         {
-            //print("GARIK RETURNED BRAND NAME: : : : : : " + returnedGlassesInfoList[i].m_glassesBrand);
-            //print("GARIK RETURNED BRAND IMAGE PATH: : : : : : " + returnedGlassesInfoList[i].m_glassesImagePath);
-            //print("GARIK RETURNED BRAND BUNDLE PATH: : : : : : " + returnedGlassesInfoList[i].m_glassesBundlePath);
-            //print("GARIK RETURNED MODEL NAME: : : : : : " + returnedGlassesInfoList[i].m_glassesName);
             GameObject res = Instantiate(m_uIController.m_FoundGlassesTemplate.gameObject);
             res.name = returnedGlassesInfoList[i].m_glassesName;
 
-
-            /*if(returnedGlassesInfoList[i].m_glassesName.Length>15)
-            {
-                string firstPart = returnedGlassesInfoList[i].m_glassesName.Substring(0, 15);
-            }*/
-
             res.transform.Find("NameText").GetComponent<Text>().text = returnedGlassesInfoList[i].m_glassesName.Substring(0, 15);//returnedGlassesInfoList[i].m_glassesName;
-            res.GetComponent<RawImage>().texture = getTexture2D(returnedGlassesInfoList[i].m_glassesImagePath);
+
+            Texture2D tex = getTexture2D(returnedGlassesInfoList[i].m_glassesImagePath);
+            res.GetComponent<RawImage>().texture = tex;
 
             res.transform.SetParent(m_uIController.m_searchResultPanel);
 
@@ -143,11 +170,17 @@ public class SearchController : MonoBehaviour
             res.GetComponent<Button>().onClick.AddListener(() => onResultModelClicked());
 
             res.SetActive(true);
+
+
+    
+            m_uIController.addModelToCarousel(res.name, tex);
         }
     }
 
     public void onResultModelClicked()    
     {
+        //m_uIController.m_carouselModelsNew.SetActive(true);
+        //m_uIController.m_carouselModelsNew.transform.localScale = Vector3.one;
         m_uIController.hideSearchPanel();
         m_uIController.m_bottomButtonsPanel.gameObject.SetActive(true);
         var go = EventSystem.current.currentSelectedGameObject;
@@ -158,14 +191,9 @@ public class SearchController : MonoBehaviour
             if(m_glassesInfoList[i].m_glassesName.Contains(modelName))
             {
                 print("CLICKED GLASSES PATH: " + m_glassesInfoList[i].m_glassesBundlePath);
-
-
                 string p = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + m_glassesInfoList[i].m_glassesBrand + "/Models";
                 print("BrandName: " + m_glassesInfoList[i].m_glassesBrand);
-
                 m_glassesManager.setCurrentModelsPath(p);
-
-
                 //StartCoroutine(loadGlasses(modelName, m_glassesInfoList[i].m_glassesBundlePath));
                 StartCoroutine(m_glassesManager.loadGlasses(modelName));
             }
@@ -292,26 +320,6 @@ public class SearchController : MonoBehaviour
     //List<GlassesInfo>  = new List<GlassesInfo>();
     void Update()
     {
-//        .hideInput = true;
-        /*
-        print("Garik Keyboard Status Done " + TouchScreenKeyboard.Status.Done);
-        print("Garik Keyboard Status Visible " + TouchScreenKeyboard.Status.Visible);
-        print("Garik Keyboard Status LostFocus " + TouchScreenKeyboard.Status.LostFocus);
-        print("Garik Keyboard Status Canceled " + TouchScreenKeyboard.Status.Canceled);*/
-        //TouchScreenKeyboard.hideInput = true;
-        //print("Garik m_searchKeyboard text: " + m_searchKeyboard.text);
-        /*
-        string findText = m_uIController.m_searchInputField.text;
-        print("Search Input Field Val: " + findText);
 
-        List<GlassesInfo> returnedGlassesInfoList = findGlassesList(m_glassesInfoList, findText);
-
-        for (int i = 0; i < returnedGlassesInfoList.Count; i++)
-        {
-            print("GARIK RETURNED BRAND NAME: : : : : : " + returnedGlassesInfoList[i].m_glassesBrand);
-            print("GARIK RETURNED BRAND NAME: : : : : : " + returnedGlassesInfoList[i].m_glassesBrand);
-            //print("GARIK RETURNED IMAGE PATH: : : : : : " + returnedGlassesInfoList[i].m_glassesImagePath);
-
-        }*/
     }
 }
