@@ -54,8 +54,6 @@ public class SearchController : MonoBehaviour
         ptrClickEntry.callback.AddListener((data) => { onSearchInputFieldPtrClicked((PointerEventData)data); });
         eventTrigger.triggers.Add(ptrClickEntry);
 
-
-
         //updateSearchResultsUI();
 
         /*for (int i = 0; i < m_glassesInfoList.Count; i++)
@@ -71,20 +69,13 @@ public class SearchController : MonoBehaviour
         //m_uIController.m_searchInputField..AddListener(delegate { onSearchInputFieldEdit(); });
     }
 
-    IEnumerator touchScreenKeyboardVisibilityCorotuine()
-    {
-        yield return new WaitUntil(() => TouchScreenKeyboard.visible == true);
-        TouchScreenKeyboard.hideInput = true;
-        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(false);
-        yield return new WaitUntil(() => TouchScreenKeyboard.visible == false);
-        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(true);
 
-        //print("Garik +++ TouchScreenKeyboard.Status.Visible");
-    }
 
     public void onSearchInputFieldPtrClicked(PointerEventData data)
     {
         print("Garik Clicked On Search Input Field");
+        m_uIController.showSearchPanel(m_uIController.m_searchInputField.text);
+        //m_uIController.m_searchPanel.GetComponent<RawImage>().enabled = false;
         m_uIController.m_selectedModelMarker.transform.SetParent(null);
         m_uIController.m_selectedModelMarker.SetActive(false);
 
@@ -103,30 +94,27 @@ public class SearchController : MonoBehaviour
             }
         }
 
-
         m_uIController.m_bottomButtonsPanel.gameObject.SetActive(false);
         m_uIController.m_carouselBrandsNew.SetActive(false);
-        //m_uIController.m_carouselModelsNew.SetActive(false);
-        //m_uIController.m_carouselModelsNew.transform.localScale = Vector3.zero;
 
         StartCoroutine(touchScreenKeyboardVisibilityCorotuine());
     }
-
-    /*void updateSearchResultsUI()
+    IEnumerator touchScreenKeyboardVisibilityCorotuine()
     {
-        for (int i = 0; i < 10; i++)
-        {
-            GameObject res = Instantiate(m_uIController.m_FoundGlassesTemplate.gameObject);
-            res.name = "result_" + i;
-            res.transform.SetParent(m_uIController.m_searchResultPanel);
-            res.SetActive(true);
-        }
-    }*/
+        yield return new WaitUntil(() => TouchScreenKeyboard.visible == true);
+        TouchScreenKeyboard.hideInput = true;
+        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(false);
+        yield return new WaitUntil(() => TouchScreenKeyboard.visible == false);
+        m_uIController.m_bottomButtonsPanel.gameObject.SetActive(true);
+
+    }
 
     void onSearchInputFieldValueChanged()
     {
+        print("Garik onSearchInputFieldValueChanged");
         //TouchScreenKeyboard.hideInput = true;
-        m_uIController.showSearchPanel();
+
+        m_uIController.m_searchPanel.GetComponent<RawImage>().enabled = true;
 
         for (int i = 0; i < m_uIController.m_searchResultPanel.childCount; i++)
         {
@@ -134,8 +122,6 @@ public class SearchController : MonoBehaviour
         }
 
         string findText = m_uIController.m_searchInputField.text;
-        //print("Search Input Field Val: " + findText);
-
 
 
         List<GlassesInfo> returnedGlassesInfoList = findGlassesList(m_glassesInfoList, findText);
@@ -166,12 +152,9 @@ public class SearchController : MonoBehaviour
 
             res.transform.SetParent(m_uIController.m_searchResultPanel);
 
-
             res.GetComponent<Button>().onClick.AddListener(() => onResultModelClicked());
 
             res.SetActive(true);
-
-
     
             m_uIController.addModelToCarousel(res.name, tex);
         }
@@ -179,9 +162,10 @@ public class SearchController : MonoBehaviour
 
     public void onResultModelClicked()    
     {
-        //m_uIController.m_carouselModelsNew.SetActive(true);
-        //m_uIController.m_carouselModelsNew.transform.localScale = Vector3.one;
+        m_uIController.m_backButton.gameObject.SetActive(true);
+        m_uIController.m_backButton.SetParent(GameObject.Find("Canvas").transform);
         m_uIController.hideSearchPanel();
+        m_uIController.m_searchPanel.GetComponent<RawImage>().enabled = false;
         m_uIController.m_bottomButtonsPanel.gameObject.SetActive(true);
         var go = EventSystem.current.currentSelectedGameObject;
         string modelName = go.name;
@@ -192,58 +176,16 @@ public class SearchController : MonoBehaviour
             {
                 print("CLICKED GLASSES PATH: " + m_glassesInfoList[i].m_glassesBundlePath);
                 string p = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + m_glassesInfoList[i].m_glassesBrand + "/Models";
-                print("BrandName: " + m_glassesInfoList[i].m_glassesBrand);
+                print("Garik BrandName: " + m_glassesInfoList[i].m_glassesBrand);
                 m_glassesManager.setCurrentModelsPath(p);
-                //StartCoroutine(loadGlasses(modelName, m_glassesInfoList[i].m_glassesBundlePath));
                 StartCoroutine(m_glassesManager.loadGlasses(modelName));
             }
         }
 
     }
-    /*
 
-    public IEnumerator loadGlasses(string glassesName, string path)
-    {
-        if (m_mainController.m_currentGlasses != null)
-        {
-            Destroy(m_mainController.m_currentGlasses);
-        }
-        //print("Garik combine string: " + Path.Combine(m_currentModelsPath, glassesName.ToLower()));
-
-        var bundleLoadRequest = AssetBundle.LoadFromFileAsync(path.ToLower());
-
-        yield return bundleLoadRequest;
-
-        var myLoadedAssetBundle = bundleLoadRequest.assetBundle;
-        if (myLoadedAssetBundle == null)
-        {
-            Debug.Log("Failed to load AssetBundle!");
-            yield break;
-        }
-
-        var assetLoadRequest = myLoadedAssetBundle.LoadAssetAsync<GameObject>(glassesName.ToLower());
-        yield return assetLoadRequest;
-
-        GameObject prefab = assetLoadRequest.asset as GameObject;
-
-        GameObject g = Instantiate(prefab);
-        g.name = glassesName;
-        g.SetActive(true);
-        g.transform.SetParent(m_glassesContainer.transform);
-        myLoadedAssetBundle.Unload(false);
-
-        m_mainController.setGlasses(g);
-
-        //GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_selectedModelMarker.transform.SetParent(GameObject.Find(glassesName).transform);
-        //GameObject.Find("SelectedModelMarker");//.transform.SetParent(GameObject.Find(glassesName).transform);
-    }
-
-    */
     List<GlassesInfo> findGlassesList(List<GlassesInfo> glassesInfoList, string nameStr)
     {
-
-
-
         List<GlassesInfo> returnableList = new List<GlassesInfo>();
         if (nameStr != "")
         {
@@ -290,8 +232,6 @@ public class SearchController : MonoBehaviour
             string brandName = brandDirectories[i].Split('/').Last();
             //print("Garik folderName: " + brandDirectories[i]);
 
-
-
             DirectoryInfo d = new DirectoryInfo(Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models");
             //m_currentModelsPath = Application.streamingAssetsPath + "/NetworkingFolder" + "/Brands/" + brandName + "/Models";
 
@@ -317,7 +257,6 @@ public class SearchController : MonoBehaviour
 
     }
 
-    //List<GlassesInfo>  = new List<GlassesInfo>();
     void Update()
     {
 

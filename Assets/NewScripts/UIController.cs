@@ -40,14 +40,49 @@ public class UIController : MonoBehaviour
 
     public RectTransform m_photoOutputRawimage;
 
+    public RectTransform m_backButton;
 
-    public void showSearchPanel()
+
+    public void showSearchPanel(string currentInputSearchText)
     {
+        m_keyboard = TouchScreenKeyboard.Open(currentInputSearchText, TouchScreenKeyboardType.Default, false, false, false, false);
+        /*if (m_keyboard == null)
+        {
+            m_keyboard = TouchScreenKeyboard.Open(currentInputSearchText, TouchScreenKeyboardType.Default, false, false, false, false);
+        }
+        else
+        {
+            m_keyboard.active = true;
+        }*/
+        print("m_searchPanel activating");
+        m_backButton.SetParent(m_searchPanel);
+        m_searchInputField.transform.SetParent(m_searchPanel);
         m_searchPanel.gameObject.SetActive(true);
+
+        if(m_searchInputField.text.Length>0)
+        {
+            print("Garik input field length is more than 0");
+            m_searchPanel.gameObject.SetActive(true);
+            m_searchPanel.GetComponent<RawImage>().enabled = true;
+        }
+        else
+        {
+            m_searchPanel.gameObject.SetActive(true);
+            m_searchPanel.GetComponent<RawImage>().enabled = false;
+        }
     }
     public void hideSearchPanel()
     {
+        if (m_keyboard != null)
+        {
+            print("Garik closing keyboard");
+            m_keyboard.active = false;
+            m_keyboard = null;
+        }
+        m_searchInputField.transform.SetParent(GameObject.Find("Canvas").transform);
         m_searchPanel.gameObject.SetActive(false);
+        print("Garik hideSearchPanel");
+
     }
 
 
@@ -117,12 +152,16 @@ public class UIController : MonoBehaviour
     void Awake()
     {
 
+        /*m_keyboard = new TouchScreenKeyboard("", TouchScreenKeyboardType.Default, false, false, false, false, "", 1000);
+        m_keyboard.active = false;
+        m_keyboard = null;*/
+
 
         //m_searchInputField.keyboardType =  TouchScreenKeyboardType.Default;
+        //m_keyboard = new TouchScreenKeyboard("",TouchScreenKeyboardType.Default,false,false,false,false,"",1000);
+        //m_keyboard.active = false;
 
 
-
-            
 
 
         m_glassesManager = GameObject.Find("_manager").GetComponent<GlassesManager>();
@@ -234,6 +273,15 @@ public class UIController : MonoBehaviour
     float m_maxTime = 1000;
     void Update()
     {
+        if(m_keyboard != null && m_keyboard.active == true)
+        {
+            m_searchInputField.text = m_keyboard.text;
+            if (m_keyboard.status == TouchScreenKeyboard.Status.Done)
+            {
+                print("GARIK KEYBOARD DONE PRESSED");
+                hideSearchPanel();
+            }
+        }
         m_currentTime = Mathf.Clamp(m_currentTime - Time.deltaTime, 0, m_maxTime);
         //setTimerValue(m_currentTime, (m_maxTime - m_currentTime) / m_maxTime);
 
@@ -386,36 +434,35 @@ public class UIController : MonoBehaviour
             m_flashButton.GetChild(1).gameObject.SetActive(true);
         }
     }
-
+    TouchScreenKeyboard m_keyboard;
     public void onBackSearchBtnClicked()
     {
-        /*m_carouselModelsNew.transform.Find("_carouselManager").GetComponent<GCarouselController>().setCellArrangementMethod(GCarouselController.CellArrangementMethod.eFromCenterToRight);
-
-        if (GameObject.Find("CarouselModelsNEW") != null)
-        {
-            int c = GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").childCount;
-            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Clear();
-            GameObject.Find("CarouselModelsNEW").transform.Find("_carouselManager").GetComponent<GCarouselController>().m_cellList.Capacity = 0;
-            for (int k = 0; k < c; k++)
-            {
-                Destroy(GameObject.Find("CarouselModelsNEW").transform.Find("Viewport").Find("Content").GetChild(k).gameObject);
-
-            }
-        }*/
-
         print("Garik m_currentChoosedClickedName " + m_currentChoosedClickedName);
         if(!m_searchPanel.gameObject.activeSelf)
         {
-            showSearchPanel();
+            showSearchPanel(m_searchInputField.text);
+            m_carouselModelsNew.SetActive(true);
+            m_bottomButtonsPanel.gameObject.SetActive(false);
+
+            //m_keyboard = TouchScreenKeyboard.Open(m_searchInputField.text, TouchScreenKeyboardType.Default,false,false,false,false);
             return;
         }
         else
         {
-            hideSearchPanel(); 
+            hideSearchPanel();
+            m_searchInputField.text = "";
+            m_backButton.gameObject.SetActive(false);
+            m_carouselModelsNew.SetActive(true);
+
+            print("Garik BACK 222");
+            m_bottomButtonsPanel.gameObject.SetActive(true);
+            m_carouselBrandsNew.SetActive(true);
+            m_glassesManager.showModels(m_currentChoosedClickedName);
+
+
+            //m_keyboard.active = false;
         }
 
-        m_bottomButtonsPanel.gameObject.SetActive(true);
-        m_carouselBrandsNew.SetActive(true);
-        m_glassesManager.showModels(m_currentChoosedClickedName);
+
     }
 }
